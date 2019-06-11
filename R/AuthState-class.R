@@ -4,46 +4,58 @@
 #'
 #' @param package Package name, an optional string. The associated package will
 #'   generally by implied by the namespace within which the `AuthState` is
-#'   defined. But it's possible to record the package name explicitly and
-#'   seems like a good practice.
-#' @param app An OAuth consumer application, as produced by [httr::oauth_app()].
-#' @param api_key API key (a string). Necessary in order to make unauthorized
-#'   "token-free" requests for public resources. Can be `NULL` if all requests
-#'   will be authorized, i.e. they will include a token.
+#'   defined. But it's possible to record the package name explicitly and seems
+#'   like a good practice.
+#' @param app Optional. An OAuth consumer application, as produced by
+#'   [httr::oauth_app()].
+#' @param api_key Optional. API key (a string). Some APIs accept unauthorized,
+#'   "token-free" requests for public resources, but only if the request
+#'   includes an API key.
 #' @param auth_active Logical. `TRUE` means requests should include a token (and
 #'   probably not an API key). `FALSE` means requests should include an API key
 #'   (and probably not a token).
+#' @param cred Credentials. Typically populated indirectly via [token_fetch()].
 #'
 #' @return An object of class [AuthState].
 #' @export
 #' @examples
-#' init_AuthState(
-#'   package = "mypkg",
-#'   app = gargle_app(),
-#'   api_key = gargle_api_key(),
-#'   auth_active = TRUE
+#' my_app <- httr::oauth_app(
+#'   appname = "my_package",
+#'   key = "keykeykeykeykeykey",
+#'   secret = "secretsecretsecret"
 #' )
-## FIXME(jennybc): Analogous functions for the Gargle2.0 class default to the
-## gargle oauth app. Should we do same in both places? If so, which way?
-## Default to gargle app or have no default?
+#'
+#' init_AuthState(
+#'   package = "my_package",
+#'   app = my_app,
+#'   api_key = "api_key_api_key_api_key",
+#' )
 init_AuthState <- function(package = NA_character_,
-                           app,
-                           api_key,
-                           auth_active) {
+                           app = NULL,
+                           api_key = NULL,
+                           auth_active = TRUE,
+                           cred = NULL) {
   AuthState$new(
-    package = package,
-    app = app,
-    api_key,
-    auth_active = auth_active
+    package     = package,
+    app         = app,
+    api_key     = api_key,
+    auth_active = auth_active,
+    cred        = cred
   )
 }
 
 #' Authorization state
 #'
+#' @description
 #' An `AuthState` object manages an authorization state, typically on behalf of
-#' a client package that makes requests to a Google API. This state is
-#' incorporated into the package's requests for tokens and controls the
-#' inclusion of tokens in requests to the target API:
+#' a client package that makes requests to a Google API.
+#'
+#' The [How to use gargle for auth in a client
+#' package](https://gargle.r-lib.org/articles/gargle-auth-in-client-package.html)
+#' vignette describes a design for wrapper packages that relies on an `AuthState`
+#' object. This state can then be incorporated into the package's requests for
+#' tokens and can control the inclusion of tokens in requests to the target API.
+#'
 #'   * `api_key` is the simplest way to associate a request with a specific
 #'     Google Cloud Platform [project](https://cloud.google.com/resource-manager/docs/cloud-platform-resource-hierarchy#projects).
 #'     A few calls to certain APIs, e.g. reading a public Sheet, can succeed
@@ -62,6 +74,7 @@ init_AuthState <- function(package = NA_character_,
 #'     [`httr::Token2.0`][httr::Token-class] (or a subclass thereof), probably
 #'     obtained via [token_fetch()] (or one of its constituent credential
 #'     fetching functions).
+#'
 #' An `AuthState` should be created through the constructor function
 #' [init_AuthState()].
 #'
@@ -76,16 +89,17 @@ AuthState <- R6::R6Class("AuthState", list(
   auth_active = NULL,
   cred = NULL,
   initialize = function(package = NA_character_,
-                        app,
-                        api_key,
-                        auth_active,
+                        app = NULL,
+                        api_key = NULL,
+                        auth_active = TRUE,
                         cred = NULL) {
     cat_line("initializing AuthState")
     stopifnot(
       is_string(package),
-      is.oauth_app(app),
+      is.null(app) || is.oauth_app(app),
       is.null(api_key) || is_string(api_key),
-      isTRUE(auth_active) || isFALSE(auth_active)
+      isTRUE(auth_active) || isFALSE(auth_active),
+      is.null(cred) || inherits(cred, "Token2.0")
     )
     self$package     <- package
     self$app         <- app

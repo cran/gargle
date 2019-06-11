@@ -142,9 +142,29 @@ credentials_gce(
 
 `credentials_gce()` retrieves service account credentials from a metadata service that is specific to virtual machine instances running on Google Cloud Engine (GCE). Basically, if you have to ask what this is about, this is not the auth method for you. Let us move on.
 
+## `credentials_byo_oauth2()`
+  
+The fourth function tried is `credentials_byo_oauth2()`. Here's how a call to `token_fetch()` might work:
+
+```{r, eval = FALSE}
+token_fetch(token = <TOKEN2.0>)
+
+# credentials_service_account() fails because no `path`,
+# credentials_app_default() fails because no ADC found,
+# credentials_gce() fails because not on GCE,
+# which leads to this call:
+credentials_byo_oauth2(
+  token = <TOKEN2.0>
+)
+```
+
+`credentials_byo_oauth2()` provides a back door for a "bring your own token" workflow. This function accounts for the scenario where an OAuth token has been obtained through external means and it's convenient to be able to put it into force.
+
+`credentials_byo_oauth2()` checks that `token` is of class `httr::Token2.0` and that it appears to be associated with Google. If `token` is not provided or if it doesn't satisfy these requirements, we fail and `token_fetch()`'s execution moves on to the next function in the registry.
+
 ## `credentials_user_oauth2()`
   
-The fourth and final function tried is `credentials_user_oauth2()`. Here's how a call to `token_fetch()` might work:
+The fifth and final function tried is `credentials_user_oauth2()`. Here's how a call to `token_fetch()` might work:
 
 ```{r, eval = FALSE}
 token_fetch(scopes = <SCOPES>)
@@ -152,17 +172,20 @@ token_fetch(scopes = <SCOPES>)
 # credentials_service_account() fails because no `path`,
 # credentials_app_default() fails because no ADC found,
 # credentials_gce() fails because not on GCE,
+# credentials_byo_oauth2() fails because no `token`,
 # which leads to this call:
 credentials_user_oauth2(
   scopes = <SCOPES>,
-  app = gargle_app(),
-  package = "gargle"
+  app = <OAUTH_APP>,
+  package = "<PACKAGE>"
 )
 ```
 
 `credentials_user_oauth2()` is where the vast majority of users will end up. This is the function that choreographs the traditional "OAuth dance" in the browser. User credentials are cached locally, at the user level, by default. Therefore, after first use, there are scenarios in which gargle can determine unequivocally that it already has a suitable token on hand and can load (and possibly refresh) it, without additional user intervention.
 
-The `scopes`, `app`, and `package` are often provided by the API wrapper function that is mediating the calls to `token_fetch()`. In particular, **no one** should be using the OAuth app returned by `gargle_app()` for anything other than experimentation. The wrapper package should use its own app or help the user to provide their own. The wrapper package would presumably also declare itself as the package requesting a token (this is used in messages). So here's how a call to `token_fetch()` and `credentials_user_oauth2()` might look when initiated from `THINGY_auth()`, a function in the fictional thingyr wrapper package:
+The `scopes`, `app`, and `package` are generally provided by the API wrapper function that is mediating the calls to `token_fetch()`. Do not "borrow" an OAuth app (OAuth client ID and secret) from gargle or any other package; always use credentials associated with your package or provided by your user. Per the Google User Data Policy <https://developers.google.com/terms/api-services-user-data-policy>, your application must accurately represent itself when authenticating to Google API services.
+
+The wrapper package would presumably also declare itself as the package requesting a token (this is used in messages). So here's how a call to `token_fetch()` and `credentials_user_oauth2()` might look when initiated from `THINGY_auth()`, a function in the fictional thingyr wrapper package:
 
 ```{r, eval = FALSE}
 # user initiates auth or does something that triggers it indirectly
@@ -218,7 +241,7 @@ If none of the tokens has the right scopes and app (or if the user declines to u
 A user can reduce the need for interaction by passing the target `email` to `thingy_auth()`:
 
 ```{r, eval = FALSE}
-drive_auth(email = "janedoe_work@gmail.com")
+thingy_auth(email = "janedoe_work@gmail.com")
 ```
 
 or by specifying same in the `gargle_oauth_email` option. A value of `email = TRUE`, passed directly or via the option, is an alternative strategy: `TRUE` means that gargle is allowed to use a matching token whenever there is exactly one match.

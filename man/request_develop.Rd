@@ -53,7 +53,8 @@ including the query).
 }
 \description{
 Intended primarily for internal use in client packages that provide
-high-level wrappers for users.
+high-level wrappers for users. The vignette \href{https://gargle.r-lib.org/articles/request-helper-functions.html}{Request helper functions}
+describes how one might use these functions inside a wrapper package.
 }
 \section{\code{request_develop()}}{
 
@@ -134,6 +135,26 @@ req <- request_build(
   token = "PRETEND_I_AM_A_TOKEN"
 )
 req
+
+# Example with no previous knowledge of the endpoint and no token
+# use an API key for which the Places API is enabled!
+API_KEY <- "1234567890"
+
+# get restaurants close to a location in Vancouver, BC
+req <- request_build(
+  method = "GET",
+  path = "maps/api/place/nearbysearch/json",
+  params = list(
+    location = "49.268682,-123.167117",
+    radius = 100,
+    type = "restaurant"
+  ),
+  key = API_KEY,
+  base_url = "https://maps.googleapis.com"
+)
+resp <- request_make(req)
+out <- response_process(resp)
+vapply(out$results, function(x) x$name, character(1))
 }
 }
 \seealso{

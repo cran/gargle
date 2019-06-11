@@ -42,6 +42,9 @@ The approach I'll take in this article is to call these functions via `:::`.
 
 ## Overview of the approach
 
+  1. Add the [sodium package](https://cran.r-project.org/package=sodium) to
+     Suggests in your DESCRIPTION, via
+     `usethis::use_package("sodium", "Suggests")` if you like.
   1. Generate a random PASSWORD and give it a self-documenting name, e.g.
      `GARGLE_PASSWORD`. Store as an environment variable.
   1. Identify a secret file of interest, such as the JSON representing a
@@ -153,8 +156,17 @@ This writes an encrypted version of `gargle-testing.json` to `inst/secret/gargle
 
 Now you need to rig your tests or their setup around this encrypted token. You need to plan for two scenarios:
 
-  * Decryption is going to work. This is where you actually get to test package functionality against the target API.
-  * Decryption is not going to work. Either because the Suggested [sodium](https://cran.r-project.org/web/packages/sodium/index.html) package is not available or (much more likely) because the environment variable that represents the key is not available.
+  * Decryption is going to work. This is where you actually get to test package functionality against the target API. Put this in `.travis.yml` in order to make sodium available:
+    
+    ``` yaml
+    addons:
+      apt:
+        sources:
+        - sourceline: 'ppa:chris-lea/libsodium'
+        packages:
+        - libsodium-dev
+    ```
+  * Decryption is not going to work. Either because the Suggested [sodium](https://cran.r-project.org/package=sodium) package is not available or (much more likely) because the environment variable that represents the key is not available.
     - This will be the case on CRAN, by definition, because there is no way to share an encrypted secret.
     - This will be the case for external contributors, on their personal machines and when their GitHub pull requests are checked via CI services, such as Travis-CI or AppVeyor. 
     - We recommend that you actively check your package under these conditions,
@@ -193,7 +205,7 @@ But what if `secret_can_decrypt()` returns `FALSE` and no token is loaded? That'
 ```{r eval = FALSE}
 # googledrive
 skip_if_no_token <- function() {
-  testthat::skip_if_not(have_token(), "No Drive token")
+  testthat::skip_if_not(drive_has_token(), "No Drive token")
 }
 
 # bigrquery
@@ -202,7 +214,7 @@ skip_if_no_auth <- function() {
 }
 ```
 
-`googledrive::have_token()` and `bigrquery::has_access_cred()` are package-specific functions that return `TRUE` if a token is available and `FALSE` otherwise. By calling the skipper at the start of tests that require auth, you arrange for your package to cope gracefully when the token cannot be decrypted, e.g., on CRAN and in pull requests.
+`googledrive::drive_has_token()` and `bigrquery::has_access_cred()` are package-specific functions that return `TRUE` if a token is available and `FALSE` otherwise. By calling the skipper at the start of tests that require auth, you arrange for your package to cope gracefully when the token cannot be decrypted, e.g., on CRAN and in pull requests.
 
 In bigrquery, `skip_if_no_auth()` is defined below `R/` but it is arguably more common to see such a definition in a file like `tests/testthat/helper.R`, which is where it's defined in googledrive.
 

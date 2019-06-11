@@ -1,6 +1,6 @@
 Package: gargle
 Title: Utilities for Working with Google APIs
-Version: 0.1.3
+Version: 0.2.0
 Authors@R: 
     c(person(given = "Jennifer",
              family = "Bryan",
@@ -30,13 +30,13 @@ BugReports: https://github.com/r-lib/gargle/issues
 Depends: R (>= 3.2)
 Imports: fs (>= 1.3.1), glue (>= 1.3.0), httr (>= 1.4.0), jsonlite,
         rlang, stats, withr
-Suggests: covr, knitr, rmarkdown, sodium, testthat
+Suggests: covr, knitr, rmarkdown, sodium, testthat (>= 2.1.0)
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-05-27 16:19:50 UTC; jenny
+Packaged: 2019-06-11 20:57:11 UTC; jenny
 Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   Craig Citro [aut],
   Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
@@ -44,4 +44,4 @@ Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   RStudio [cph, fnd]
 Maintainer: Jennifer Bryan <jenny@rstudio.com>
 Repository: CRAN
-Date/Publication: 2019-06-03 13:10:16 UTC
+Date/Publication: 2019-06-11 21:20:03 UTC

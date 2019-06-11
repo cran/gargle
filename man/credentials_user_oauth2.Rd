@@ -9,7 +9,7 @@ credentials_user_oauth2(scopes = NULL, app = gargle_app(),
 }
 \arguments{
 \item{scopes}{A character vector of scopes to request. Pick from those listed
-in \href{https://developers.google.com/identity/protocols/googlescopes}{OAuth 2.0 Scopes for Google APIs}.
+at \url{https://developers.google.com/identity/protocols/googlescopes}.
 
 For certain token flows, the
 \code{"https://www.googleapis.com/auth/userinfo.email"} scope is unconditionally
@@ -33,12 +33,12 @@ always determined from the token itself, never from this argument. Use \code{NA}
 or \code{FALSE} to match nothing and force the OAuth dance in the browser. Use
 \code{TRUE} to allow email auto-discovery, if exactly one matching token is
 found in the cache. Defaults to the option named "gargle_oauth_email",
-retrieved by \code{\link[=gargle_oauth_email]{gargle_oauth_email()}}.}
+retrieved by \code{\link[gargle:gargle_oauth_email]{gargle::gargle_oauth_email()}}.}
   \item{use_oob}{Whether to prefer "out of band" authentication. Defaults to
 the option named "gargle_oob_default", retrieved via
-\code{\link[=gargle_oob_default]{gargle_oob_default()}}.}
+\code{\link[gargle:gargle_oob_default]{gargle::gargle_oob_default()}}.}
   \item{cache}{Specifies the OAuth token cache. Defaults to the option named
-"gargle_oauth_cache", retrieved via \code{\link[=gargle_oauth_cache]{gargle_oauth_cache()}}.}
+"gargle_oauth_cache", retrieved via \code{\link[gargle:gargle_oauth_cache]{gargle::gargle_oauth_cache()}}.}
   \item{user_params}{Named list holding endpoint specific parameters to pass to
 the server when posting the request for obtaining or refreshing the
 access token.}
@@ -84,6 +84,7 @@ credentials_user_oauth2(scopes, app)
 }
 \seealso{
 Other credential functions: \code{\link{credentials_app_default}},
+  \code{\link{credentials_byo_oauth2}},
   \code{\link{credentials_gce}},
   \code{\link{credentials_service_account}},
   \code{\link{token_fetch}}

@@ -8,7 +8,7 @@ credentials_app_default(scopes = NULL, ...)
 }
 \arguments{
 \item{scopes}{A character vector of scopes to request. Pick from those listed
-in \href{https://developers.google.com/identity/protocols/googlescopes}{OAuth 2.0 Scopes for Google APIs}.
+at \url{https://developers.google.com/identity/protocols/googlescopes}.
 
 For certain token flows, the
 \code{"https://www.googleapis.com/auth/userinfo.email"} scope is unconditionally
@@ -50,7 +50,8 @@ credentials_app_default()
 
 \url{https://cloud.google.com/sdk/docs/}
 
-Other credential functions: \code{\link{credentials_gce}},
+Other credential functions: \code{\link{credentials_byo_oauth2}},
+  \code{\link{credentials_gce}},
   \code{\link{credentials_service_account}},
   \code{\link{credentials_user_oauth2}},
   \code{\link{token_fetch}}

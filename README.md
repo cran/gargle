@@ -5,6 +5,8 @@
 
 <!-- badges: start -->
 
+[![CRAN
+status](https://www.r-pkg.org/badges/version/gargle)](https://cran.r-project.org/package=gargle)
 [![Build
 Status](https://travis-ci.org/r-lib/gargle.svg?branch=master)](https://travis-ci.org/r-lib/gargle)
 [![AppVeyor Build
@@ -93,32 +95,34 @@ token
 ```
 
 Here’s an example of using request and response helpers to make a
-one-off request to the [Places
-API](https://developers.google.com/places/web-service/intro). We’ll find
-the restaurants in a certain part of Vancouver, BC.
+one-off request to the [Web Fonts Developer
+API](https://developers.google.com/fonts/docs/developer_api). We show
+the most popular web font families served by Google Fonts.
 
 ``` r
 library(gargle)
 
 req <- request_build(
   method = "GET",
-  path = "maps/api/place/nearbysearch/json",
+  path = "webfonts/v1/webfonts",
   params = list(
-    location = "49.268682,-123.167117",
-    radius = 100,
-    type = "restaurant"
+    sort = "popularity"
   ),
   key = gargle_api_key(),
-  base_url = "https://maps.googleapis.com"
+  base_url = "https://www.googleapis.com"
 )
 resp <- request_make(req)
 out <- response_process(resp)
-vapply(out$results, function(x) x$name, character(1))
-#> [1] "The Naam"                    "The Oakwood Canadian Bistro"
-#> [3] "Healthy Noodle House"        "Tapatio Mexican Cafe & Bar" 
-#> [5] "FreshFast"
+
+out <- out[["items"]][1:8]
+vapply(out, function(x) x[["family"]], character(1))
+#> [1] "Roboto"           "Open Sans"        "Lato"            
+#> [4] "Montserrat"       "Roboto Condensed" "Source Sans Pro" 
+#> [7] "Oswald"           "Raleway"
 ```
 
 Please note that the ‘gargle’ project is released with a [Contributor
 Code of Conduct](https://gargle.r-lib.org/CODE_OF_CONDUCT.html). By
 contributing to this project, you agree to abide by its terms.
+
+[Privacy policy](https://www.tidyverse.org/google_privacy_policy)

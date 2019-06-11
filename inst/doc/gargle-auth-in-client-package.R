@@ -10,15 +10,17 @@ knitr::opts_chunk$set(
 #                         path = NULL,
 #                         scopes = "https://www.googleapis.com/auth/drive",
 #                         cache = gargle::gargle_oauth_cache(),
-#                         use_oob = gargle::gargle_oob_default()) {
+#                         use_oob = gargle::gargle_oob_default(),
+#                         token = NULL) {
 #    cred <- gargle::token_fetch(
 #      scopes = scopes,
-#      app = drive_oauth_app(),
+#      app = drive_oauth_app() %||% gargle::tidyverse_app(),
 #      email = email,
 #      path = path,
 #      package = "googledrive",
 #      cache = cache,
-#      use_oob = use_oob
+#      use_oob = use_oob,
+#      token = token
 #    )
 #    if (!inherits(cred, "Token2.0")) {
 #      # throw an informative error here
@@ -32,9 +34,10 @@ knitr::opts_chunk$set(
 ## ----eval = FALSE--------------------------------------------------------
 #  .auth <- gargle::init_AuthState(
 #    package     = "googledrive",
-#    app         = gargle::tidyverse_app(),     # YOUR PKG SHOULD USE ITS OWN APP!
-#    api_key     = gargle::tidyverse_api_key(), # YOUR PKG SHOULD USE ITS OWN KEY!
 #    auth_active = TRUE
+#    # app = NULL,
+#    # api_key = NULL,
+#    # cred = NULL
 #  )
 
 ## ---- eval = FALSE-------------------------------------------------------
@@ -70,7 +73,8 @@ knitr::opts_chunk$set(
 #                         path = NULL,
 #                         scopes = "https://www.googleapis.com/auth/drive",
 #                         cache = gargle::gargle_oauth_cache(),
-#                         use_oob = gargle::gargle_oob_default()) { ... }
+#                         use_oob = gargle::gargle_oob_default(),
+#                         token = NULL) { ... }
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  # googledrive::
@@ -109,14 +113,14 @@ knitr::opts_chunk$set(
 #    if (isFALSE(.auth$auth_active)) {
 #      return(NULL)
 #    }
-#    if (!have_token()) {
+#    if (!drive_has_token()) {
 #      drive_auth()
 #    }
 #    httr::config(token = .auth$cred)
 #  }
 
 ## ----eval = FALSE--------------------------------------------------------
-#  # googledrive:::
+#  # googledrive::
 #  have_token <- function() {
 #    inherits(.auth$cred, "Token2.0")
 #  }

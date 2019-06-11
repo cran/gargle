@@ -58,16 +58,28 @@ names(cred_funs_list())
 #  )
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  token_fetch(scopes = <SCOPES>)
+#  token_fetch(token = <TOKEN2.0>)
 #  
 #  # credentials_service_account() fails because no `path`,
 #  # credentials_app_default() fails because no ADC found,
 #  # credentials_gce() fails because not on GCE,
 #  # which leads to this call:
+#  credentials_byo_oauth2(
+#    token = <TOKEN2.0>
+#  )
+
+## ---- eval = FALSE-------------------------------------------------------
+#  token_fetch(scopes = <SCOPES>)
+#  
+#  # credentials_service_account() fails because no `path`,
+#  # credentials_app_default() fails because no ADC found,
+#  # credentials_gce() fails because not on GCE,
+#  # credentials_byo_oauth2() fails because no `token`,
+#  # which leads to this call:
 #  credentials_user_oauth2(
 #    scopes = <SCOPES>,
-#    app = gargle_app(),
-#    package = "gargle"
+#    app = <OAUTH_APP>,
+#    package = "<PACKAGE>"
 #  )
 
 ## ---- eval = FALSE-------------------------------------------------------
@@ -109,7 +121,7 @@ names(cred_funs_list())
 #  Selection: 3
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  drive_auth(email = "janedoe_work@gmail.com")
+#  thingy_auth(email = "janedoe_work@gmail.com")
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  gargle_oauth_sitrep()

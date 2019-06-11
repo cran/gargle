@@ -12,7 +12,7 @@
 
 
 
-<title>Request Helper Functions</title>
+<title>Request helper functions</title>
 
 
 
@@ -299,7 +299,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 
-<h1 class="title toc-ignore">Request Helper Functions</h1>
+<h1 class="title toc-ignore">Request helper functions</h1>
 
 
 
@@ -385,7 +385,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 </div>
 <div id="method-or-endpoint-data" class="section level2">
 <h2>Method (or endpoint) data</h2>
-<p>Our Discovery Document ingest process leaves you with an R list. Let’s assume it’s available in your package’s namespace as an internal object named <code>.endpoints</code>. Each item represents one method of the API (Google’s vocabulary) or an endpoint (term I originally used in, e.g., googledrive … maybe I should conform to Google?).</p>
+<p>Our Discovery Document ingest process leaves you with an R list. Let’s assume it’s available in your package’s namespace as an internal object named <code>.endpoints</code>. Each item represents one method of the API (Google’s vocabulary) or an endpoint (gargle’s vocabulary).</p>
 <p>Each endpoint has an <code>id</code>. These <code>id</code>s are also used as names for the list. Examples of some <code>id</code>s from the Drive and Sheets APIs:</p>
 <pre><code>drive.about.get
 drive.files.create
@@ -427,8 +427,9 @@ sheets.spreadsheets.sheets.copyTo</code></pre>
 <a class="sourceLine" id="cb5-25" data-line-number="25">}</a></code></pre></div>
 <p>The <code>endpoint</code> argument specifies an endpoint by its name, a.k.a. its <code>id</code>.</p>
 <p><code>params</code> is where the processed user input goes.</p>
-<p><code>key</code> and <code>token</code> refer to an API key and OAuth2 token, respectively. Both can be populated by default, but it is possible to pass them explicitly. This is also where we enforce the rule that we always send exactly <strong>one</strong> of <code>key</code> and <code>token</code>.</p>
-<p><code>googledrive::request_generate()</code> takes care of everything specific to the Drive API and the user’s input and task. Then it uses <code>gargle::request_develop()</code> followed by <code>gargle::request_build()</code> to finish preparing the request.</p>
+<p><code>key</code> and <code>token</code> refer to an API key and OAuth2 token, respectively. Both can be populated by default, but it is possible to pass them explicitly. If your package ships with a default API key, you should append it above as the final fallback value for <code>params$key</code>.</p>
+<p>Do not “borrow” an API key from gargle or another package; always send a key associated with your package or provided by your user. Per the Google User Data Policy <a href="https://developers.google.com/terms/api-services-user-data-policy" class="uri">https://developers.google.com/terms/api-services-user-data-policy</a>, your application must accurately represent itself when authenticating to Google API services.</p>
+<p>After <code>googledrive::request_generate()</code> takes care of everything specific to the Drive API and the user’s input and task, we call <code>gargle::request_develop()</code>. We finish preparing the request with <code>gargle::request_build()</code>, which enforces the rule that we always send exactly <strong>one</strong> of <code>key</code> and <code>token</code>.</p>
 </div>
 <div id="design-suggestion-making-requests" class="section level2">
 <h2>Design suggestion: making requests</h2>
