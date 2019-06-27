@@ -6,7 +6,7 @@ knitr::opts_chunk$set(
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  # googledrive::
-#  drive_auth <- function(email = NULL,
+#  drive_auth <- function(email = gargle::gargle_oauth_email(),
 #                         path = NULL,
 #                         scopes = "https://www.googleapis.com/auth/drive",
 #                         cache = gargle::gargle_oauth_cache(),
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 #                         token = NULL) {
 #    cred <- gargle::token_fetch(
 #      scopes = scopes,
-#      app = drive_oauth_app() %||% gargle::tidyverse_app(),
+#      app = drive_oauth_app() %||% <BUILT_IN_DEFAULT_APP>,
 #      email = email,
 #      path = path,
 #      package = "googledrive",
@@ -44,11 +44,11 @@ knitr::opts_chunk$set(
 #  library(googledrive)
 #  
 #  google_app <- httr::oauth_app(
-#    "acme-corp",
-#    key = "123456789.apps.googleusercontent.com",
-#    secret = "abcdefghijklmnopqrstuvwxyz"
+#    appname = "acme-corp",
+#    key     = "123456789.apps.googleusercontent.com",
+#    secret  = "abcdefghijklmnopqrstuvwxyz"
 #  )
-#  drive_auth_config(app = google_app)
+#  drive_auth_configure(app = google_app)
 #  
 #  drive_oauth_app()
 #  #> <oauth_app> acme-corp
@@ -58,7 +58,7 @@ knitr::opts_chunk$set(
 ## ---- eval = FALSE-------------------------------------------------------
 #  library(googledrive)
 #  
-#  drive_auth_config(api_key = "123456789")
+#  drive_auth_configure(api_key = "123456789")
 #  
 #  drive_api_key()
 #  #> "123456789"
@@ -69,7 +69,7 @@ knitr::opts_chunk$set(
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  # googledrive::
-#  drive_auth <- function(email = NULL,
+#  drive_auth <- function(email = gargle::gargle_oauth_email(),
 #                         path = NULL,
 #                         scopes = "https://www.googleapis.com/auth/drive",
 #                         cache = gargle::gargle_oauth_cache(),
@@ -92,7 +92,8 @@ knitr::opts_chunk$set(
 #    }
 #  
 #    ## modifications specific to googledrive package
-#    params$key <- key %||% params$key %||% drive_api_key()
+#    params$key <- key %||% params$key %||%
+#      drive_api_key() %||% <BUILT_IN_DEFAULT_API_KEY>
 #    if (!is.null(ept$parameters$supportsTeamDrives)) {
 #      params$supportsTeamDrives <- TRUE
 #    }
@@ -121,9 +122,20 @@ knitr::opts_chunk$set(
 
 ## ----eval = FALSE--------------------------------------------------------
 #  # googledrive::
-#  have_token <- function() {
+#  drive_has_token <- function() {
 #    inherits(.auth$cred, "Token2.0")
 #  }
+
+## ----eval = FALSE--------------------------------------------------------
+#  library(googledrive)
+#  library(googlesheets4)
+#  
+#  drive_auth(email = "jane_doe@example.com") # gets a suitably scoped token
+#                                             # and stashes for googledrive use
+#  
+#  sheets_auth(token = drive_token())         # registers token with googlesheets4
+#  
+#  # now work with both packages freely ...
 
 ## ----eval = FALSE--------------------------------------------------------
 #  library(googledrive)
