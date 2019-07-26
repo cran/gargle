@@ -1,6 +1,6 @@
 Package: gargle
 Title: Utilities for Working with Google APIs
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     c(person(given = "Jennifer",
              family = "Bryan",
@@ -36,7 +36,7 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 NeedsCompilation: no
-Packaged: 2019-06-27 18:37:06 UTC; jenny
+Packaged: 2019-07-26 19:14:09 UTC; jenny
 Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   Craig Citro [aut],
   Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
@@ -44,4 +44,4 @@ Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   RStudio [cph, fnd]
 Maintainer: Jennifer Bryan <jenny@rstudio.com>
 Repository: CRAN
-Date/Publication: 2019-06-27 19:20:03 UTC
+Date/Publication: 2019-07-26 19:40:02 UTC
