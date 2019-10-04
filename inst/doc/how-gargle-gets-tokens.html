@@ -360,13 +360,17 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <a class="sourceLine" id="cb5-6" data-line-number="6">  <span class="dt">scopes =</span> <span class="op">&lt;</span>SCOPES<span class="op">&gt;</span></a>
 <a class="sourceLine" id="cb5-7" data-line-number="7">)</a></code></pre></div>
 <p><code>credentials_app_default()</code> loads credentials from a file identified via a search strategy known as <a href="https://cloud.google.com/docs/authentication/production#providing_credentials_to_your_application">Application Default Credentials (ADC)</a>. The credentials themselves are conventional service account or user credentials that happen to be stored in a pre-ordained location and format.</p>
-<p>The hope is to make auth “just work” for someone working on Google-provided infrastructure or who has used Google tooling to get started. A sequence of paths is consulted, which we describe here, with some abuse of notation. ALL_CAPS represents the value of an environment variable and <code>%||%</code> is used in the spirit of a <a href="https://en.wikipedia.org/wiki/Null_coalescing_operator">null coalescing operator</a>.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">GOOGLE_APPLICATION_CREDENTIALS</a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">CLOUDSDK_CONFIG<span class="op">/</span>application_default_credentials.json</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3"><span class="co"># on Windows:</span></a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">(APPDATA <span class="op">%||%</span><span class="st"> </span>SystemDrive <span class="op">%||%</span><span class="st"> </span>C<span class="op">:</span>)\gcloud\application_default_credentials.json</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="co"># on not-Windows:</span></a>
-<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="op">~</span><span class="er">/</span>.config<span class="op">/</span>gcloud<span class="op">/</span>application_default_credentials.json</a></code></pre></div>
+<p>The hope is to make auth “just work” for someone working on Google-provided infrastructure or who has used Google tooling to get started. A sequence of paths is consulted, which we describe here, with some abuse of notation. ALL_CAPS represents the value of an environment variable.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="op">$</span>{GOOGLE_APPLICATION_CREDENTIALS}</a>
+<a class="sourceLine" id="cb6-2" data-line-number="2"><span class="op">$</span>{CLOUDSDK_CONFIG}<span class="op">/</span>application_default_credentials.json</a>
+<a class="sourceLine" id="cb6-3" data-line-number="3"></a>
+<a class="sourceLine" id="cb6-4" data-line-number="4"><span class="co"># on Windows:</span></a>
+<a class="sourceLine" id="cb6-5" data-line-number="5"><span class="op">%APPDATA%</span>\gcloud\application_default_credentials.json</a>
+<a class="sourceLine" id="cb6-6" data-line-number="6"><span class="op">%SystemDrive%</span>\gcloud\application_default_credentials.json</a>
+<a class="sourceLine" id="cb6-7" data-line-number="7">C<span class="op">:</span>\gcloud\application_default_credentials.json</a>
+<a class="sourceLine" id="cb6-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb6-9" data-line-number="9"><span class="co"># on not-Windows:</span></a>
+<a class="sourceLine" id="cb6-10" data-line-number="10"><span class="op">~</span><span class="er">/</span>.config<span class="op">/</span>gcloud<span class="op">/</span>application_default_credentials.json</a></code></pre></div>
 <p>If the above search successfully identifies a JSON file, it is parsed and ingested either as a service account token or an OAuth2 user credential. In the case of an OAuth2 credential, the requested <code>scopes</code> must also meet certain criteria. Note that this will NOT work for OAuth2 credentials initiated by gargle, which are stored on disk in <code>.rds</code> files. The storage of OAuth2 user credentials as JSON is unique to certain Google tools – possibly just the <a href="https://cloud.google.com/sdk/gcloud/reference/auth/application-default/login"><code>gcloud</code> CLI</a> – and should probably be regarded as deprecated. It is recommended to use ADC with a service account. If this quest is unsuccessful, we fail and <code>token_fetch()</code>’s execution moves on to the next function in the registry.</p>
 <p>The main takeaway lesson:</p>
 <ul>

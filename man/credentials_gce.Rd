@@ -4,7 +4,9 @@
 \alias{credentials_gce}
 \title{Get a token for Google Compute Engine}
 \usage{
-credentials_gce(scopes = NULL, service_account = "default", ...)
+
+  credentials_gce(scopes = "https://www.googleapis.com/auth/cloud-platform",
+  service_account = "default", ...)
 }
 \arguments{
 \item{scopes}{A character vector of scopes to request. Pick from those listed

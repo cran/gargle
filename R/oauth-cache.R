@@ -48,7 +48,7 @@ cache_available <- function(path) {
 }
 
 cache_allowed <- function(path) {
-  if (!interactive()) {
+  if (!rlang::is_interactive()) {
     return(FALSE)
   }
 
@@ -89,38 +89,31 @@ cache_ls <- function(path) {
 
 cache_load <- function(path) {
   files <- as.character(dir_ls(path))
-  files <- hash_paths(files)
+  files <- keep_hash_paths(files)
   names(files) <- path_file(files)
   tokens <- map(files, readRDS)
-  validate_token_list(tokens)
-}
 
-validate_token_list <- function(tokens) {
-  hashes <- unname(map_chr(tokens, function(t) t$hash()))
-  nms <- names(tokens)
+  hashes <- map_chr(tokens, function(t) t$hash())
 
-  if (!identical(nms, hashes)) {
-    mismatches <- nms != hashes
+  mismatch <- names(hashes) != hashes
+
+  if (any(mismatch)) {
+    # we've seen this with tokens cached on R 3.5 but reloaded on 3.6
+    # because $hash() calls serialize() and default version changed
     msg <- c(
       "Cache contains tokens with names that do not match their hash:",
       glue("
-        * Token stored as {sq(nms[mismatches])}
-              but hash is {sq(hashes[mismatches])}
-      ")
+        * Token stored as {sq(names(hashes)[mismatch])}
+              but hash is {sq(hashes[mismatch])}
+      "),
+      "Will attempt to repair by renaming."
     )
-    abort(glue_collapse(msg, sep = "\n"))
+    cat_line(msg)
+    file_move(files[mismatch], path(path, hashes[mismatch]))
+    Recall(path)
+  } else {
+    tokens
   }
-
-  if (anyDuplicated(nms)) {
-    dupes <- unique(nms[duplicated(nms)])
-    msg <- c(
-      "Cache contains duplicated tokens:",
-      paste0("  * ", dupes)
-    )
-    abort(glue_collapse(msg, sep = "\n"))
-  }
-
-  tokens
 }
 
 # retrieve and insert tokens from cache -----------------------------------
@@ -146,8 +139,10 @@ token_from_cache <- function(candidate) {
 token_into_cache <- function(candidate) {
   cache_path <- candidate$cache_path
   if (is.null(cache_path)) {
+    cat_line("not caching token")
     return()
   }
+  cat_line("putting token into the cache: ", cache_path)
   saveRDS(candidate, path(cache_path, candidate$hash()))
 }
 
@@ -157,36 +152,65 @@ token_match <- function(candidate, existing, package = "gargle") {
     return()
   }
 
-  candidate_email <- extract_email(candidate)
-  ## examples of possible values:
-  ## 'blah@example.org' an actual email
-  ## '*'                permission to use an email we find in the cache
-  ## ''                 no email and no instructions
-
-  ## if we have no instructions, we need user permission to consult the cache
-  if (empty_string(candidate_email) && !interactive()) {
-    return()
-  }
-
   m <- match2(candidate, existing)
   if (!is.na(m)) {
+    stopifnot(length(m) == 1)
     return(existing[[m]])
   }
+  # there is no full match
 
-  ## if email was specified and no full match, we're done
+  candidate_email <- extract_email(candidate)
+  # possible values    what they mean
+  # ------------------ ---------------------------------------------------------
+  # 'blah@example.org' user specified an email
+  # '*'                `email = TRUE`, i.e. permission to use *one* that we find
+  #                    (we still scold for multiple matches)
+  # ''                 user gave no email and no instructions
+
+  # if email was specified, we're done
   if (!empty_string(candidate_email) && candidate_email != "*") {
     return()
   }
-  ## possible scenarios:
-  ## candidate_email is '*'
-  ## candidate_email is '' and session is interactive
+  # candidate_email is either '*' or ''
 
-  ## match on the short hash
+  # match on the short hash
   m <- match2(mask_email(candidate), mask_email(existing))
+
+  # if no match on short hash, we're done
   if (anyNA(m)) {
     return()
   }
   existing <- existing[m]
+  # existing holds at least one short hash match
+
+  if (!rlang::is_interactive()) {
+    # proceed, but make sure user sees messaging about how to do
+    # non-interactive auth more properly
+    # https://github.com/r-lib/gargle/issues/92
+    withr::local_options(list(gargle_quiet = FALSE))
+    candidate_email <- "*"
+    if (length(existing) > 1) {
+      emails <- extract_email(existing)
+      emails <- glue("  * {emails}")
+      cat_line(glue(
+        "Suitable tokens found in the cache, associated with these emails:\n",
+        "{glue_collapse(emails, sep = '\n')}", "\n",
+        "The first will be used."
+      ))
+      existing <- existing[[1]]
+    }
+    msg <- c(
+      "Using an auto-discovered, cached token.\n",
+      "To suppress this message, modify your code or options to clearly ",
+      "consent to the use of a cached token.\n",
+      "See gargle's \"Non-interactive auth\" vignette for more details:\n",
+      "https://gargle.r-lib.org/articles/non-interactive-auth.html"
+    )
+    msg <- glue::glue_collapse(msg)
+    # morally, I'd like to throw a warning but current design of token_fetch()
+    # means warnings are caught
+    cat_line(msg)
+  }
 
   if (length(existing) == 1 && candidate_email == "*") {
     cat_line(glue(
@@ -194,14 +218,8 @@ token_match <- function(candidate, existing, package = "gargle") {
     ))
     return(existing)
   }
-  ## we need user to OK our discovery or pick from multiple emails
 
-  if (!interactive()) {
-    stop_need_user_interaction(
-      "Suitable cached tokens exist, but user confirmation is required."
-    )
-  }
-
+  # we need user to OK our discovery or pick from multiple emails
   withr::local_options(list(gargle_quiet = FALSE))
   emails <- extract_email(existing)
   cat_line(glue(
@@ -224,7 +242,7 @@ token_match <- function(candidate, existing, package = "gargle") {
 hash_regex <- "^([0-9a-f]+)_(.*?)$"
 mask_email    <- function(x) sub(hash_regex, "\\1", x)
 extract_email <- function(x) sub(hash_regex, "\\2", x)
-hash_paths <- function(x) x[grep(hash_regex, path_file(x))]
+keep_hash_paths <- function(x) x[grep(hash_regex, path_file(x))]
 
 ## match() but return location of all matches
 match2 <- function(needle, haystack) {

@@ -1,56 +1,119 @@
 ## ---- include = FALSE----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE
 )
 
-## ----eval = FALSE--------------------------------------------------------
+## ------------------------------------------------------------------------
+#  # Approach #1: use an option.
+#  # Either specify the user:
+#  options(gargle_oauth_email = "jenny@example.org")
+#  # Or, if you don't use multiple Google identities, you can be more vague:
+#  options(gargle_oauth_email = TRUE)
+#  
+#  # Approach #2: call PACKAGE_auth() proactively.
+#  library(googledrive)
+#  # Either specify the user:
+#  drive_auth(email = "jenny@example.org")
+#  # Or, if you don't use multiple Google identities, you can be more vague:
+#  drive_auth(email = TRUE)
+
+## ------------------------------------------------------------------------
 #  library(googledrive)
 #  
 #  drive_auth(path = "/path/to/your/service-account-token.json")
 
-## ----eval = FALSE--------------------------------------------------------
+## ------------------------------------------------------------------------
 #  options(gargle_quiet = FALSE)
 
-## ----eval = FALSE--------------------------------------------------------
+## ------------------------------------------------------------------------
 #  library(googledrive)
 #  
 #  my_oauth_token <- # some process that results in the token you want to use
 #  drive_auth(token = my_oauth_token)
 
-## ----eval = FALSE--------------------------------------------------------
+## ------------------------------------------------------------------------
 #  # googledrive
 #  drive_auth(token = readRDS("/path/to/your/oauth-token.rds"))
 
-## ----eval = FALSE--------------------------------------------------------
-#  library(gcalendr)
+## ------------------------------------------------------------------------
+#  library(googledrive)
+#  
+#  # do anything that triggers auth
+#  drive_find(n_max)
+
+## ------------------------------------------------------------------------
+#  options(gargle_oauth_email = TRUE)
+
+## ------------------------------------------------------------------------
+#  options(gargle_oauth_email = "jenny@example.org")
+
+## ------------------------------------------------------------------------
+#  drive_auth(email = TRUE)
+
+## ------------------------------------------------------------------------
+#  drive_auth(email = "jenny@example.org")
+
+## ------------------------------------------------------------------------
+#  library(googledrive)
 #  
 #  # designate project-specific cache
 #  options(gargle_oauth_cache = ".secrets")
 #  
-#  # check it
+#  # check the value of the option, if you like
 #  gargle::gargle_oauth_cache()
 #  
-#  # trigger auth on purpose --> store a token in the cache
-#  calendar_auth()
+#  # trigger auth on purpose --> store a token in the specified cache
+#  drive_auth()
 #  
-#  # see your token in the cache
+#  # see your token file in the cache, if you like
 #  list.files(".secrets/")
 
-## ----eval = FALSE--------------------------------------------------------
-#  library(gcalendr)
+## ------------------------------------------------------------------------
+#  library(googledrive)
+#  
+#  # trigger auth on purpose --> store a token in the specified cache
+#  drive_auth(cache = ".secrets")
+
+## ------------------------------------------------------------------------
+#  library(googledrive)
 #  
 #  options(
 #    gargle_oauth_cache = ".secrets",
-#    # as long as .secrets/ holds EXACTLY ONE token, this gives gcalendar
-#    # permission to use it without requiring user to confirm
 #    gargle_oauth_email = TRUE
-#  
-#    # alternative if .secrets/ holds more than one gcalendr token:
-#    # you could disambiguate by specifying the user's email
-#    # gargle_oauth_email = 'jenny@example.org'
 #  )
 #  
 #  # now use gcalendr with no need for explicit auth
-#  calendar_list()
+#  drive_find(n_max = 5)
+
+## ------------------------------------------------------------------------
+#  library(googledrive)
+#  
+#  options(
+#    gargle_oauth_cache = ".secrets",
+#    gargle_oauth_email = "jenny@example.org"
+#  )
+#  
+#  # now use gcalendr with no need for explicit auth
+#  drive_find(n_max = 5)
+
+## ------------------------------------------------------------------------
+#  library(googledrive)
+#  
+#  drive_auth(cache = ".secrets", email = TRUE)
+#  
+#  # now use gcalendr with no need for explicit auth
+#  drive_fine(n_max = 5)
+
+## ------------------------------------------------------------------------
+#  library(googledrive)
+#  
+#  drive_auth(cache = ".secrets", email = "jenny@example.org")
+#  
+#  # now use gcalendr with no need for explicit auth
+#  drive_auth(n_max = 5)
+
+## ------------------------------------------------------------------------
+#  options(gargle_quiet = FALSE)
 

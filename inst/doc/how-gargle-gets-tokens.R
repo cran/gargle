@@ -32,10 +32,14 @@ names(cred_funs_list())
 #  )
 
 ## ---- eval = FALSE-------------------------------------------------------
-#  GOOGLE_APPLICATION_CREDENTIALS
-#  CLOUDSDK_CONFIG/application_default_credentials.json
+#  ${GOOGLE_APPLICATION_CREDENTIALS}
+#  ${CLOUDSDK_CONFIG}/application_default_credentials.json
+#  
 #  # on Windows:
-#  (APPDATA %||% SystemDrive %||% C:)\gcloud\application_default_credentials.json
+#  %APPDATA%\gcloud\application_default_credentials.json
+#  %SystemDrive%\gcloud\application_default_credentials.json
+#  C:\gcloud\application_default_credentials.json
+#  
 #  # on not-Windows:
 #  ~/.config/gcloud/application_default_credentials.json
 
