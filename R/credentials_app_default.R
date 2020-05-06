@@ -18,7 +18,7 @@
 #' If the above search successfully identifies a JSON file, it is parsed and
 #' ingested either as a service account token or a user OAuth2 credential.
 #'
-#' @inheritParams token_fetch
+#' @inheritParams credentials_service_account
 #'
 #' @seealso
 #'
@@ -34,15 +34,15 @@
 #' \dontrun{
 #' credentials_app_default()
 #' }
-credentials_app_default <- function(scopes = NULL, ...) {
-  cat_line("trying credentials_app_default()")
+credentials_app_default <- function(scopes = NULL, ..., subject = NULL) {
+  ui_line("trying credentials_app_default()")
   # In general, application default credentials only include the cloud-platform
   # scope.
   path <- credentials_app_default_path()
   if (!file_exists(path)) {
     return(NULL)
   }
-  cat_line("file exists at ADC path: ", path)
+  ui_line("file exists at ADC path: ", path)
 
   # The JSON file stored on disk can be either a user credential or a service
   # account.
@@ -61,7 +61,7 @@ credentials_app_default <- function(scopes = NULL, ...) {
     if (is.null(scopes) || !all(scopes %in% valid_scopes)) {
       return(NULL)
     }
-    cat_line("ADC cred type: authorized_user")
+    ui_line("ADC cred type: authorized_user")
     endpoint <- httr::oauth_endpoints("google")
     app <- httr::oauth_app("google", info$client_id, secret = info$client_secret)
     scope <- "https://www.googleapis.com/auth/cloud.platform"
@@ -76,8 +76,8 @@ credentials_app_default <- function(scopes = NULL, ...) {
     token$refresh()
     token
   } else {
-    cat_line("ADC cred type: service_account")
-    credentials_service_account(scopes, path)
+    ui_line("ADC cred type: service_account")
+    credentials_service_account(scopes, path = path, subject = subject)
   }
 }
 
@@ -93,7 +93,7 @@ credentials_app_default_path <- function() {
     appdata <- Sys.getenv("APPDATA", Sys.getenv("SystemDrive", "C:"))
     pth <- c(appdata, "gcloud", pth)
   } else {
-    pth <- path_home(".config", "gcloud")
+    pth <- path_home(".config", "gcloud", pth)
   }
   path_join(pth)
 }

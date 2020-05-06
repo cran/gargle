@@ -1,19 +1,19 @@
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup---------------------------------------------------------------
+## ----setup--------------------------------------------------------------------
 library(gargle)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes, ...)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 names(cred_funs_list())
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>, path = "/path/to/your/service-account.json")
 #  
 #  # leads to this call:
@@ -22,7 +22,7 @@ names(cred_funs_list())
 #    path = "/path/to/your/service-account.json"
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>)
 #  
 #  # credentials_service_account() fails because no `path`,
@@ -31,7 +31,7 @@ names(cred_funs_list())
 #    scopes = <SCOPES>
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  ${GOOGLE_APPLICATION_CREDENTIALS}
 #  ${CLOUDSDK_CONFIG}/application_default_credentials.json
 #  
@@ -43,7 +43,7 @@ names(cred_funs_list())
 #  # on not-Windows:
 #  ~/.config/gcloud/application_default_credentials.json
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>)
 #  # or perhaps
 #  token_fetch(scopes = <SCOPES>, service_account = <SERVICE_ACCOUNT>)
@@ -61,7 +61,7 @@ names(cred_funs_list())
 #    service_account = <SERVICE_ACCOUNT>
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(token = <TOKEN2.0>)
 #  
 #  # credentials_service_account() fails because no `path`,
@@ -72,7 +72,7 @@ names(cred_funs_list())
 #    token = <TOKEN2.0>
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>)
 #  
 #  # credentials_service_account() fails because no `path`,
@@ -86,7 +86,7 @@ names(cred_funs_list())
 #    package = "<PACKAGE>"
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # user initiates auth or does something that triggers it indirectly
 #  THINGY_auth()
 #  
@@ -104,7 +104,7 @@ names(cred_funs_list())
 #    package = "thingyr"
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  gargle2.0_token(
 #    email   = gargle_oauth_email(),
 #    app     = thingy_app(),
@@ -113,7 +113,7 @@ names(cred_funs_list())
 #    cache   = gargle_oauth_cache()
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  The thingyr package is requesting access to your Google account. Select a
 #  pre-authorised account or enter '0' to obtain a new token. Press Esc/Ctrl + C to
 #  abort.
@@ -124,10 +124,10 @@ names(cred_funs_list())
 #  
 #  Selection: 3
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  thingy_auth(email = "janedoe_work@gmail.com")
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  gargle_oauth_sitrep()
 #  #' gargle OAuth cache path:
 #  #' /Users/janedoe/.R/gargle/gargle-oauth

@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
 
@@ -19,9 +18,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -31,14 +30,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -47,9 +48,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -116,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -287,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -311,7 +310,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <li><code>request_make(x, ..., user_agent)</code></li>
 </ul>
 <p>The target audience is someone writing an R package to wrap a Google API.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(gargle)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">library</span>(gargle)</span></code></pre></div>
 <div id="why-use-gargles-request-helpers" class="section level2">
 <h2>Why use gargle’s request helpers?</h2>
 <p>Why would the developer of a Google-API-wrapping package care about the request helpers in gargle?</p>
@@ -368,14 +367,14 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h2>Discovery Documents</h2>
 <p>Google’s <a href="https://developers.google.com/discovery/">API Discovery Service</a> “provides a lightweight, JSON-based API that exposes machine-readable metadata about Google APIs”. We recommend ingesting this metadata into an R list, stored as internal data in an API-wrapping client package. Then, HTTP requests inside high-level functions can be made concisely and safely, by referring to this metadata. The combined use of this data structure and gargle’s request helpers can eliminate a lot of boilerplate data and logic that are shared across Google APIs and across endpoints within an API.</p>
 <p>The gargle package ships with some functions and scripts to facilitate the ingest of a Discovery Document. You can find these files in the gargle installation like so:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">ddi_dir &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;discovery-doc-ingest&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gargle&quot;</span>)</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="kw">list.files</span>(ddi_dir)</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3"><span class="co">#&gt;  [1] &quot;api-wide-parameter-names.txt&quot;    &quot;api-wide-parameters-humane.txt&quot; </span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="co">#&gt;  [3] &quot;api-wide-parameters.csv&quot;         &quot;discover-discovery.R&quot;           </span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5"><span class="co">#&gt;  [5] &quot;drive-example.R&quot;                 &quot;ingest-functions.R&quot;             </span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6"><span class="co">#&gt;  [7] &quot;method-properties-humane.txt&quot;    &quot;method-properties.csv&quot;          </span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7"><span class="co">#&gt;  [9] &quot;method-property-names.txt&quot;       &quot;parameter-properties-humane.txt&quot;</span></a>
-<a class="sourceLine" id="cb2-8" data-line-number="8"><span class="co">#&gt; [11] &quot;parameter-properties.csv&quot;        &quot;parameter-property-names.txt&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>ddi_dir &lt;-<span class="st"> </span><span class="kw">system.file</span>(<span class="st">&quot;discovery-doc-ingest&quot;</span>, <span class="dt">package =</span> <span class="st">&quot;gargle&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">list.files</span>(ddi_dir)</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="co">#&gt;  [1] &quot;api-wide-parameter-names.txt&quot;    &quot;api-wide-parameters-humane.txt&quot; </span></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="co">#&gt;  [3] &quot;api-wide-parameters.csv&quot;         &quot;discover-discovery.R&quot;           </span></span>
+<span id="cb2-5"><a href="#cb2-5"></a><span class="co">#&gt;  [5] &quot;drive-example.R&quot;                 &quot;ingest-functions.R&quot;             </span></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co">#&gt;  [7] &quot;method-properties-humane.txt&quot;    &quot;method-properties.csv&quot;          </span></span>
+<span id="cb2-7"><a href="#cb2-7"></a><span class="co">#&gt;  [9] &quot;method-property-names.txt&quot;       &quot;parameter-properties-humane.txt&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a><span class="co">#&gt; [11] &quot;parameter-properties.csv&quot;        &quot;parameter-property-names.txt&quot;</span></span></code></pre></div>
 <p>Main files of interest to the developer of a client package:</p>
 <ul>
 <li><code>ingest-functions.R</code> is a collection of functions for downloading and ingesting a Discovery Document.</li>
@@ -395,37 +394,37 @@ sheets.spreadsheets.create
 sheets.spreadsheets.values.clear
 sheets.spreadsheets.sheets.copyTo</code></pre>
 <p>Retrieve the metadata for one endpoint by name, e.g.:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1">.endpoints[[<span class="st">&quot;drive.files.create&quot;</span>]]</a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>.endpoints[[<span class="st">&quot;drive.files.create&quot;</span>]]</span></code></pre></div>
 <p>That info can be passed along to <code>request_develop(endpoint, params, base_url)</code>, which conducts sanity checks and combines this external knowledge with the data coming from the user and developer via <code>params</code>.</p>
 </div>
 <div id="design-suggestion-forming-requests" class="section level2">
 <h2>Design suggestion: forming requests</h2>
 <p>Here’s the model used in googledrive. There is a low-level request helper, <code>googledrive::request_generate()</code>, that is used to form every request in the package. It is exported as part of a low-level API for expert use, but most users will never know it exists.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2">request_generate &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">endpoint =</span> <span class="kw">character</span>(),</a>
-<a class="sourceLine" id="cb5-3" data-line-number="3">                             <span class="dt">params =</span> <span class="kw">list</span>(),</a>
-<a class="sourceLine" id="cb5-4" data-line-number="4">                             <span class="dt">key =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb5-5" data-line-number="5">                             <span class="dt">token =</span> <span class="kw">drive_token</span>()) {</a>
-<a class="sourceLine" id="cb5-6" data-line-number="6">  ept &lt;-<span class="st"> </span>.endpoints[[endpoint]]</a>
-<a class="sourceLine" id="cb5-7" data-line-number="7">  <span class="cf">if</span> (<span class="kw">is.null</span>(ept)) {</a>
-<a class="sourceLine" id="cb5-8" data-line-number="8">    <span class="kw">stop_glue</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Endpoint not recognized:</span><span class="ch">\n</span><span class="st">  * {endpoint}&quot;</span>)</a>
-<a class="sourceLine" id="cb5-9" data-line-number="9">  }</a>
-<a class="sourceLine" id="cb5-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb5-11" data-line-number="11">  <span class="co">## modifications specific to googledrive package</span></a>
-<a class="sourceLine" id="cb5-12" data-line-number="12">  params<span class="op">$</span>key &lt;-<span class="st"> </span>key <span class="op">%||%</span><span class="st"> </span>params<span class="op">$</span>key <span class="op">%||%</span><span class="st"> </span><span class="kw">drive_api_key</span>()</a>
-<a class="sourceLine" id="cb5-13" data-line-number="13">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(ept<span class="op">$</span>parameters<span class="op">$</span>supportsTeamDrives)) {</a>
-<a class="sourceLine" id="cb5-14" data-line-number="14">    params<span class="op">$</span>supportsTeamDrives &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb5-15" data-line-number="15">  }</a>
-<a class="sourceLine" id="cb5-16" data-line-number="16"></a>
-<a class="sourceLine" id="cb5-17" data-line-number="17">  req &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">request_develop</span>(<span class="dt">endpoint =</span> ept, <span class="dt">params =</span> params)</a>
-<a class="sourceLine" id="cb5-18" data-line-number="18">  gargle<span class="op">::</span><span class="kw">request_build</span>(</a>
-<a class="sourceLine" id="cb5-19" data-line-number="19">    <span class="dt">path =</span> req<span class="op">$</span>path,</a>
-<a class="sourceLine" id="cb5-20" data-line-number="20">    <span class="dt">method =</span> req<span class="op">$</span>method,</a>
-<a class="sourceLine" id="cb5-21" data-line-number="21">    <span class="dt">params =</span> req<span class="op">$</span>params,</a>
-<a class="sourceLine" id="cb5-22" data-line-number="22">    <span class="dt">body =</span> req<span class="op">$</span>body,</a>
-<a class="sourceLine" id="cb5-23" data-line-number="23">    <span class="dt">token =</span> token</a>
-<a class="sourceLine" id="cb5-24" data-line-number="24">  )</a>
-<a class="sourceLine" id="cb5-25" data-line-number="25">}</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a>request_generate &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">endpoint =</span> <span class="kw">character</span>(),</span>
+<span id="cb5-3"><a href="#cb5-3"></a>                             <span class="dt">params =</span> <span class="kw">list</span>(),</span>
+<span id="cb5-4"><a href="#cb5-4"></a>                             <span class="dt">key =</span> <span class="ot">NULL</span>,</span>
+<span id="cb5-5"><a href="#cb5-5"></a>                             <span class="dt">token =</span> <span class="kw">drive_token</span>()) {</span>
+<span id="cb5-6"><a href="#cb5-6"></a>  ept &lt;-<span class="st"> </span>.endpoints[[endpoint]]</span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="cf">if</span> (<span class="kw">is.null</span>(ept)) {</span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="kw">stop_glue</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Endpoint not recognized:</span><span class="ch">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
+<span id="cb5-9"><a href="#cb5-9"></a>  }</span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>  <span class="co">## modifications specific to googledrive package</span></span>
+<span id="cb5-12"><a href="#cb5-12"></a>  params<span class="op">$</span>key &lt;-<span class="st"> </span>key <span class="op">%||%</span><span class="st"> </span>params<span class="op">$</span>key <span class="op">%||%</span><span class="st"> </span><span class="kw">drive_api_key</span>()</span>
+<span id="cb5-13"><a href="#cb5-13"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(ept<span class="op">$</span>parameters<span class="op">$</span>supportsTeamDrives)) {</span>
+<span id="cb5-14"><a href="#cb5-14"></a>    params<span class="op">$</span>supportsTeamDrives &lt;-<span class="st"> </span><span class="ot">TRUE</span></span>
+<span id="cb5-15"><a href="#cb5-15"></a>  }</span>
+<span id="cb5-16"><a href="#cb5-16"></a></span>
+<span id="cb5-17"><a href="#cb5-17"></a>  req &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">request_develop</span>(<span class="dt">endpoint =</span> ept, <span class="dt">params =</span> params)</span>
+<span id="cb5-18"><a href="#cb5-18"></a>  gargle<span class="op">::</span><span class="kw">request_build</span>(</span>
+<span id="cb5-19"><a href="#cb5-19"></a>    <span class="dt">path =</span> req<span class="op">$</span>path,</span>
+<span id="cb5-20"><a href="#cb5-20"></a>    <span class="dt">method =</span> req<span class="op">$</span>method,</span>
+<span id="cb5-21"><a href="#cb5-21"></a>    <span class="dt">params =</span> req<span class="op">$</span>params,</span>
+<span id="cb5-22"><a href="#cb5-22"></a>    <span class="dt">body =</span> req<span class="op">$</span>body,</span>
+<span id="cb5-23"><a href="#cb5-23"></a>    <span class="dt">token =</span> token</span>
+<span id="cb5-24"><a href="#cb5-24"></a>  )</span>
+<span id="cb5-25"><a href="#cb5-25"></a>}</span></code></pre></div>
 <p>The <code>endpoint</code> argument specifies an endpoint by its name, a.k.a. its <code>id</code>.</p>
 <p><code>params</code> is where the processed user input goes.</p>
 <p><code>key</code> and <code>token</code> refer to an API key and OAuth2 token, respectively. Both can be populated by default, but it is possible to pass them explicitly. If your package ships with a default API key, you should append it above as the final fallback value for <code>params$key</code>.</p>
@@ -436,32 +435,32 @@ sheets.spreadsheets.sheets.copyTo</code></pre>
 <h2>Design suggestion: making requests</h2>
 <p>The output of <code>gargle::request_build()</code> specifies an HTTP request.</p>
 <p><code>gargle::request_make()</code> can be used to actually execute it.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># gargle::</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">request_make &lt;-<span class="st"> </span><span class="cf">function</span>(x, ..., <span class="dt">user_agent =</span> <span class="kw">gargle_user_agent</span>()) {</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">  <span class="kw">stopifnot</span>(<span class="kw">is.character</span>(x<span class="op">$</span>method))</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">  method &lt;-<span class="st"> </span><span class="cf">switch</span>(</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">    x<span class="op">$</span>method,</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">    <span class="dt">GET    =</span> httr<span class="op">::</span>GET,</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">    <span class="dt">POST   =</span> httr<span class="op">::</span>POST,</a>
-<a class="sourceLine" id="cb6-8" data-line-number="8">    <span class="dt">PATCH  =</span> httr<span class="op">::</span>PATCH,</a>
-<a class="sourceLine" id="cb6-9" data-line-number="9">    <span class="dt">PUT    =</span> httr<span class="op">::</span>PUT,</a>
-<a class="sourceLine" id="cb6-10" data-line-number="10">    <span class="dt">DELETE =</span> httr<span class="op">::</span>DELETE,</a>
-<a class="sourceLine" id="cb6-11" data-line-number="11">    <span class="kw">abort</span>(<span class="kw">glue</span>(<span class="st">&quot;Not a recognized HTTP method: {bt(x$method)}&quot;</span>))</a>
-<a class="sourceLine" id="cb6-12" data-line-number="12">  )</a>
-<a class="sourceLine" id="cb6-13" data-line-number="13">  <span class="kw">method</span>(</a>
-<a class="sourceLine" id="cb6-14" data-line-number="14">    <span class="dt">url =</span> x<span class="op">$</span>url,</a>
-<a class="sourceLine" id="cb6-15" data-line-number="15">    <span class="dt">body =</span> x<span class="op">$</span>body,</a>
-<a class="sourceLine" id="cb6-16" data-line-number="16">    x<span class="op">$</span>token,</a>
-<a class="sourceLine" id="cb6-17" data-line-number="17">    user_agent,</a>
-<a class="sourceLine" id="cb6-18" data-line-number="18">    ...</a>
-<a class="sourceLine" id="cb6-19" data-line-number="19">  )</a>
-<a class="sourceLine" id="cb6-20" data-line-number="20">}</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># gargle::</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>request_make &lt;-<span class="st"> </span><span class="cf">function</span>(x, ..., <span class="dt">user_agent =</span> <span class="kw">gargle_user_agent</span>()) {</span>
+<span id="cb6-3"><a href="#cb6-3"></a>  <span class="kw">stopifnot</span>(<span class="kw">is.character</span>(x<span class="op">$</span>method))</span>
+<span id="cb6-4"><a href="#cb6-4"></a>  method &lt;-<span class="st"> </span><span class="cf">switch</span>(</span>
+<span id="cb6-5"><a href="#cb6-5"></a>    x<span class="op">$</span>method,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>    <span class="dt">GET    =</span> httr<span class="op">::</span>GET,</span>
+<span id="cb6-7"><a href="#cb6-7"></a>    <span class="dt">POST   =</span> httr<span class="op">::</span>POST,</span>
+<span id="cb6-8"><a href="#cb6-8"></a>    <span class="dt">PATCH  =</span> httr<span class="op">::</span>PATCH,</span>
+<span id="cb6-9"><a href="#cb6-9"></a>    <span class="dt">PUT    =</span> httr<span class="op">::</span>PUT,</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    <span class="dt">DELETE =</span> httr<span class="op">::</span>DELETE,</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="kw">abort</span>(<span class="kw">glue</span>(<span class="st">&quot;Not a recognized HTTP method: {bt(x$method)}&quot;</span>))</span>
+<span id="cb6-12"><a href="#cb6-12"></a>  )</span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="kw">method</span>(</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="dt">url =</span> x<span class="op">$</span>url,</span>
+<span id="cb6-15"><a href="#cb6-15"></a>    <span class="dt">body =</span> x<span class="op">$</span>body,</span>
+<span id="cb6-16"><a href="#cb6-16"></a>    x<span class="op">$</span>token,</span>
+<span id="cb6-17"><a href="#cb6-17"></a>    user_agent,</span>
+<span id="cb6-18"><a href="#cb6-18"></a>    ...</span>
+<span id="cb6-19"><a href="#cb6-19"></a>  )</span>
+<span id="cb6-20"><a href="#cb6-20"></a>}</span></code></pre></div>
 <p><code>request_make()</code> consults <code>x$method</code> to identify the <code>httr::VERB()</code> and then calls it with the remainder of <code>x</code>, <code>...</code> and the <code>user_agent</code>.</p>
 <p>In googledrive we have a thin wrapper around this that injects the googledrive user agent:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2">request_make &lt;-<span class="st"> </span><span class="cf">function</span>(x, ...) {</a>
-<a class="sourceLine" id="cb7-3" data-line-number="3">  gargle<span class="op">::</span><span class="kw">request_make</span>(x, ..., <span class="dt">user_agent =</span> <span class="kw">drive_ua</span>())</a>
-<a class="sourceLine" id="cb7-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>request_make &lt;-<span class="st"> </span><span class="cf">function</span>(x, ...) {</span>
+<span id="cb7-3"><a href="#cb7-3"></a>  gargle<span class="op">::</span><span class="kw">request_make</span>(x, ..., <span class="dt">user_agent =</span> <span class="kw">drive_ua</span>())</span>
+<span id="cb7-4"><a href="#cb7-4"></a>}</span></code></pre></div>
 </div>
 <div id="reference" class="section level2">
 <h2>Reference</h2>

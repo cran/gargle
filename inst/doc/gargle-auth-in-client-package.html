@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html>
 
 <head>
 
 <meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
 
@@ -19,9 +18,9 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode { white-space: pre; position: relative; }
 div.sourceCode { margin: 1em 0; }
@@ -31,14 +30,16 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -47,9 +48,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -116,9 +117,6 @@ padding-right: 2em;
 font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
 font-size: 14px;
 line-height: 1.35;
-}
-#header {
-text-align: center;
 }
 #TOC {
 clear: both;
@@ -287,7 +285,8 @@ code > span.st { color: #d14; }
 code > span.co { color: #888888; font-style: italic; } 
 code > span.ot { color: #007020; } 
 code > span.al { color: #ff0000; font-weight: bold; } 
-code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61717; background-color: #e3d2d2; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
 </style>
 
 
@@ -305,7 +304,7 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 <p>gargle provides common infrastructure for use with Google APIs. This vignette describes one possible design for using gargle to deal with auth, in a client package that provides a high-level wrapper for a specific API.</p>
-<p>There are frequent references to <a href="https://googledrive.tidyverse.org">googledrive</a>, which uses the design described here, along with <a href="https://bigrquery.r-dbi.org">bigrquery</a> (v1.2.0 and higher), <a href="https://gmailr.r-lib.org">gmailr</a> (v1.0.0 and higher), and <a href="https://googlesheets4.tidyverse.org">googlesheets4</a> (the successor to <a href="https://github.com/jennybc/googlesheets">googlesheets</a>, currently only available on GitHub).</p>
+<p>There are frequent references to <a href="https://googledrive.tidyverse.org">googledrive</a>, which uses the design described here, along with <a href="https://bigrquery.r-dbi.org">bigrquery</a> (v1.2.0 and higher), <a href="https://gmailr.r-lib.org">gmailr</a> (v1.0.0 and higher), and <a href="https://googlesheets4.tidyverse.org">googlesheets4</a> (the successor to <a href="https://github.com/jennybc/googlesheets">googlesheets</a>.</p>
 <div id="key-choices" class="section level2">
 <h2>Key choices</h2>
 <p>Getting a token requires several pieces of information and there are stark differences in how much users (need to) know or control about this process. Let’s review them, with an eye towards identifying the responsibilities of the package author versus the user.</p>
@@ -317,74 +316,74 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="user-facing-auth" class="section level3">
 <h3>User-facing auth</h3>
 <p>In googledrive, the main user-facing auth function is <code>googledrive::drive_auth()</code>. Here is its definition (at least approximately, remember this is static code):</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb1-2" data-line-number="2">drive_auth &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">email =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_email</span>(),</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3">                       <span class="dt">path =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb1-4" data-line-number="4">                       <span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</a>
-<a class="sourceLine" id="cb1-5" data-line-number="5">                       <span class="dt">cache =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_cache</span>(),</a>
-<a class="sourceLine" id="cb1-6" data-line-number="6">                       <span class="dt">use_oob =</span> gargle<span class="op">::</span><span class="kw">gargle_oob_default</span>(),</a>
-<a class="sourceLine" id="cb1-7" data-line-number="7">                       <span class="dt">token =</span> <span class="ot">NULL</span>) {</a>
-<a class="sourceLine" id="cb1-8" data-line-number="8">  cred &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">token_fetch</span>(</a>
-<a class="sourceLine" id="cb1-9" data-line-number="9">    <span class="dt">scopes =</span> scopes,</a>
-<a class="sourceLine" id="cb1-10" data-line-number="10">    <span class="dt">app =</span> <span class="kw">drive_oauth_app</span>() <span class="op">%||%</span><span class="st"> </span><span class="er">&lt;</span>BUILT_IN_DEFAULT_APP<span class="op">&gt;</span>,</a>
-<a class="sourceLine" id="cb1-11" data-line-number="11">    <span class="dt">email =</span> email,</a>
-<a class="sourceLine" id="cb1-12" data-line-number="12">    <span class="dt">path =</span> path,</a>
-<a class="sourceLine" id="cb1-13" data-line-number="13">    <span class="dt">package =</span> <span class="st">&quot;googledrive&quot;</span>,</a>
-<a class="sourceLine" id="cb1-14" data-line-number="14">    <span class="dt">cache =</span> cache,</a>
-<a class="sourceLine" id="cb1-15" data-line-number="15">    <span class="dt">use_oob =</span> use_oob,</a>
-<a class="sourceLine" id="cb1-16" data-line-number="16">    <span class="dt">token =</span> token</a>
-<a class="sourceLine" id="cb1-17" data-line-number="17">  )</a>
-<a class="sourceLine" id="cb1-18" data-line-number="18">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">inherits</span>(cred, <span class="st">&quot;Token2.0&quot;</span>)) {</a>
-<a class="sourceLine" id="cb1-19" data-line-number="19">    <span class="co"># throw an informative error here</span></a>
-<a class="sourceLine" id="cb1-20" data-line-number="20">  }</a>
-<a class="sourceLine" id="cb1-21" data-line-number="21">  .auth<span class="op">$</span><span class="kw">set_cred</span>(cred)</a>
-<a class="sourceLine" id="cb1-22" data-line-number="22">  .auth<span class="op">$</span><span class="kw">set_auth_active</span>(<span class="ot">TRUE</span>)</a>
-<a class="sourceLine" id="cb1-23" data-line-number="23">  </a>
-<a class="sourceLine" id="cb1-24" data-line-number="24">  <span class="kw">invisible</span>()</a>
-<a class="sourceLine" id="cb1-25" data-line-number="25">}</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a>drive_auth &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">email =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_email</span>(),</span>
+<span id="cb1-3"><a href="#cb1-3"></a>                       <span class="dt">path =</span> <span class="ot">NULL</span>,</span>
+<span id="cb1-4"><a href="#cb1-4"></a>                       <span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>                       <span class="dt">cache =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_cache</span>(),</span>
+<span id="cb1-6"><a href="#cb1-6"></a>                       <span class="dt">use_oob =</span> gargle<span class="op">::</span><span class="kw">gargle_oob_default</span>(),</span>
+<span id="cb1-7"><a href="#cb1-7"></a>                       <span class="dt">token =</span> <span class="ot">NULL</span>) {</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  cred &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">token_fetch</span>(</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="dt">scopes =</span> scopes,</span>
+<span id="cb1-10"><a href="#cb1-10"></a>    <span class="dt">app =</span> <span class="kw">drive_oauth_app</span>() <span class="op">%||%</span><span class="st"> </span><span class="er">&lt;</span>BUILT_IN_DEFAULT_APP<span class="op">&gt;</span>,</span>
+<span id="cb1-11"><a href="#cb1-11"></a>    <span class="dt">email =</span> email,</span>
+<span id="cb1-12"><a href="#cb1-12"></a>    <span class="dt">path =</span> path,</span>
+<span id="cb1-13"><a href="#cb1-13"></a>    <span class="dt">package =</span> <span class="st">&quot;googledrive&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14"></a>    <span class="dt">cache =</span> cache,</span>
+<span id="cb1-15"><a href="#cb1-15"></a>    <span class="dt">use_oob =</span> use_oob,</span>
+<span id="cb1-16"><a href="#cb1-16"></a>    <span class="dt">token =</span> token</span>
+<span id="cb1-17"><a href="#cb1-17"></a>  )</span>
+<span id="cb1-18"><a href="#cb1-18"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="kw">inherits</span>(cred, <span class="st">&quot;Token2.0&quot;</span>)) {</span>
+<span id="cb1-19"><a href="#cb1-19"></a>    <span class="co"># throw an informative error here</span></span>
+<span id="cb1-20"><a href="#cb1-20"></a>  }</span>
+<span id="cb1-21"><a href="#cb1-21"></a>  .auth<span class="op">$</span><span class="kw">set_cred</span>(cred)</span>
+<span id="cb1-22"><a href="#cb1-22"></a>  .auth<span class="op">$</span><span class="kw">set_auth_active</span>(<span class="ot">TRUE</span>)</span>
+<span id="cb1-23"><a href="#cb1-23"></a>  </span>
+<span id="cb1-24"><a href="#cb1-24"></a>  <span class="kw">invisible</span>()</span>
+<span id="cb1-25"><a href="#cb1-25"></a>}</span></code></pre></div>
 <p><code>drive_auth()</code> is called automatically upon the first need of a token and that can lead to user interaction, but does not necessarily do so. <code>token_fetch()</code> is described in the vignette <a href="https://gargle.r-lib.org/articles/how-gargle-gets-tokens.html">How gargle gets tokens</a>. The internal <code>.auth</code> object maintains googledrive’s auth state and is explained next.</p>
 </div>
 <div id="auth-state" class="section level3">
 <h3>Auth state</h3>
 <p>A client package can use an internal object of class <code>gargle::AuthClass</code> to hold the auth state. Here’s how it is initialized in googledrive:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">.auth &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">init_AuthState</span>(</a>
-<a class="sourceLine" id="cb2-2" data-line-number="2">  <span class="dt">package     =</span> <span class="st">&quot;googledrive&quot;</span>,</a>
-<a class="sourceLine" id="cb2-3" data-line-number="3">  <span class="dt">auth_active =</span> <span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb2-4" data-line-number="4">  <span class="co"># app = NULL,</span></a>
-<a class="sourceLine" id="cb2-5" data-line-number="5">  <span class="co"># api_key = NULL,</span></a>
-<a class="sourceLine" id="cb2-6" data-line-number="6">  <span class="co"># cred = NULL</span></a>
-<a class="sourceLine" id="cb2-7" data-line-number="7">)</a></code></pre></div>
-<p>The Oauth <code>app</code> and <code>api_key</code> are configurable by the user and, when <code>NULL</code>, downstream functions can fall back to internal credentials. The <code>cred</code> field is populated by the first call to <code>drive_auth()</code> (direct or indirectly via <code>drive_token()</code>).</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>.auth &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">init_AuthState</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="dt">package     =</span> <span class="st">&quot;googledrive&quot;</span>,</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="dt">auth_active =</span> <span class="ot">TRUE</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="co"># app = NULL,</span></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="co"># api_key = NULL,</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="co"># cred = NULL</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>)</span></code></pre></div>
+<p>The OAuth <code>app</code> and <code>api_key</code> are configurable by the user and, when <code>NULL</code>, downstream functions can fall back to internal credentials. The <code>cred</code> field is populated by the first call to <code>drive_auth()</code> (direct or indirectly via <code>drive_token()</code>).</p>
 </div>
 <div id="oauth-app" class="section level3">
 <h3>OAuth app</h3>
 <p>Most users should present OAuth user credentials to Google APIs. However, most users can also be spared the fiddly details surrounding this. The OAuth app is one example. The app is a component that most users do not even know about and they are content to use the same app for all work through a client package: possibly, the app built into the package.</p>
 <p>There is a field in the <code>.auth</code> auth state to hold the OAuth <code>app</code>. Exported auth helpers, <code>drive_oauth_app()</code> and <code>drive_auth_configure()</code>, retrieve and modify the current app to support users ready to take that level of control.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1"><span class="kw">library</span>(googledrive)</a>
-<a class="sourceLine" id="cb3-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb3-3" data-line-number="3">google_app &lt;-<span class="st"> </span>httr<span class="op">::</span><span class="kw">oauth_app</span>(</a>
-<a class="sourceLine" id="cb3-4" data-line-number="4">  <span class="dt">appname =</span> <span class="st">&quot;acme-corp&quot;</span>,</a>
-<a class="sourceLine" id="cb3-5" data-line-number="5">  <span class="dt">key     =</span> <span class="st">&quot;123456789.apps.googleusercontent.com&quot;</span>,</a>
-<a class="sourceLine" id="cb3-6" data-line-number="6">  <span class="dt">secret  =</span> <span class="st">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span></a>
-<a class="sourceLine" id="cb3-7" data-line-number="7">)</a>
-<a class="sourceLine" id="cb3-8" data-line-number="8"><span class="kw">drive_auth_configure</span>(<span class="dt">app =</span> google_app)</a>
-<a class="sourceLine" id="cb3-9" data-line-number="9"></a>
-<a class="sourceLine" id="cb3-10" data-line-number="10"><span class="kw">drive_oauth_app</span>()</a>
-<a class="sourceLine" id="cb3-11" data-line-number="11"><span class="co">#&gt; &lt;oauth_app&gt; acme-corp</span></a>
-<a class="sourceLine" id="cb3-12" data-line-number="12"><span class="co">#&gt;   key:    123456789.apps.googleusercontent.com</span></a>
-<a class="sourceLine" id="cb3-13" data-line-number="13"><span class="co">#&gt;   secret: &lt;hidden&gt;</span></a></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">library</span>(googledrive)</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a>google_app &lt;-<span class="st"> </span>httr<span class="op">::</span><span class="kw">oauth_app</span>(</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  <span class="dt">appname =</span> <span class="st">&quot;acme-corp&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  <span class="dt">key     =</span> <span class="st">&quot;123456789.apps.googleusercontent.com&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="dt">secret  =</span> <span class="st">&quot;abcdefghijklmnopqrstuvwxyz&quot;</span></span>
+<span id="cb3-7"><a href="#cb3-7"></a>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a><span class="kw">drive_auth_configure</span>(<span class="dt">app =</span> google_app)</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a><span class="kw">drive_oauth_app</span>()</span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co">#&gt; &lt;oauth_app&gt; acme-corp</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a><span class="co">#&gt;   key:    123456789.apps.googleusercontent.com</span></span>
+<span id="cb3-13"><a href="#cb3-13"></a><span class="co">#&gt;   secret: &lt;hidden&gt;</span></span></code></pre></div>
 <p>Do not “borrow” an OAuth app (OAuth client ID and secret) from gargle or any other package; always use credentials associated with your package or provided by your user. Per the Google User Data Policy <a href="https://developers.google.com/terms/api-services-user-data-policy" class="uri">https://developers.google.com/terms/api-services-user-data-policy</a>, your application must accurately represent itself when authenticating to Google API services.</p>
 </div>
 <div id="api-key" class="section level3">
 <h3>API key</h3>
 <p>Some Google APIs can be used in an unauthenticated state, if and only if requests include an API key. For example, this is a great way to read a Google Sheet that is world-readable or readable by “anyone with a link” from a Shiny app, thereby designing away the need to manage user credentials on the server.</p>
 <p>The user can provide their own API key via <code>drive_auth_configure()</code> and retrieve that value with <code>drive_api_key()</code>, just like the OAuth app. The API key is stored in the <code>api_key</code> field of the <code>.auth</code> auth state.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">library</span>(googledrive)</a>
-<a class="sourceLine" id="cb4-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb4-3" data-line-number="3"><span class="kw">drive_auth_configure</span>(<span class="dt">api_key =</span> <span class="st">&quot;123456789&quot;</span>)</a>
-<a class="sourceLine" id="cb4-4" data-line-number="4"></a>
-<a class="sourceLine" id="cb4-5" data-line-number="5"><span class="kw">drive_api_key</span>()</a>
-<a class="sourceLine" id="cb4-6" data-line-number="6"><span class="co">#&gt; &quot;123456789&quot;</span></a></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">library</span>(googledrive)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="kw">drive_auth_configure</span>(<span class="dt">api_key =</span> <span class="st">&quot;123456789&quot;</span>)</span>
+<span id="cb4-4"><a href="#cb4-4"></a></span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="kw">drive_api_key</span>()</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="co">#&gt; &quot;123456789&quot;</span></span></code></pre></div>
 <p>Many users aren’t motivated to take this level of control and appreciate when a package provides a built-in default API key. As with the app, packages should obtain their own API key and not borrow the gargle or tidyverse key.</p>
 <p>Some APIs are not usable without a token, in which case a wrapper package may not even expose functionality for managing an API key. Among the packages mentioned as examples, this is true of bigrquery.</p>
 </div>
@@ -392,24 +391,24 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <h3>Email or Google identity</h3>
 <p>In contrast to the OAuth app and API key, every user must express which identity they wish to present to the API. This is a familiar concept and users expect to specify this. Since users may have more than one Google account, it’s quite likely that they will want to switch between accounts, even within a single R session, or that they might want to explicitly declare the identity to be used in a specific script or app.</p>
 <p>That explains why <code>drive_auth()</code> has the optional <code>email</code> argument that lets users proactively specify their identity. <code>drive_auth()</code> is usually called indirectly upon first need, but a user can also call it proactively in order to specify their target <code>email</code>:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_work@gmail.com&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_work@gmail.com&quot;</span>)</span></code></pre></div>
 <p>If <code>email</code> is not given, gargle also checks for an option named “gargle_oauth_email”. The <code>email</code> is used to look up tokens in the cache and, if no suitable token is found, it is used to pre-configure the OAuth chooser in the browser. Read more in the help for <code>gargle::gargle_oauth_email()</code>.</p>
 </div>
 <div id="scopes" class="section level3">
 <h3>Scopes</h3>
 <p>Most users have no concept of scopes. They just know they want to work with, e.g., Google Drive or Google Sheets. A client package can usually pick sensible default scopes, that will support what most users want to do.</p>
 <p>Here’s a reminder of the signature of <code>googledrive::drive_auth()</code>:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb6-2" data-line-number="2">drive_auth &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">email =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_email</span>(),</a>
-<a class="sourceLine" id="cb6-3" data-line-number="3">                       <span class="dt">path =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb6-4" data-line-number="4">                       <span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</a>
-<a class="sourceLine" id="cb6-5" data-line-number="5">                       <span class="dt">cache =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_cache</span>(),</a>
-<a class="sourceLine" id="cb6-6" data-line-number="6">                       <span class="dt">use_oob =</span> gargle<span class="op">::</span><span class="kw">gargle_oob_default</span>(),</a>
-<a class="sourceLine" id="cb6-7" data-line-number="7">                       <span class="dt">token =</span> <span class="ot">NULL</span>) { ... }</a></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>drive_auth &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">email =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_email</span>(),</span>
+<span id="cb6-3"><a href="#cb6-3"></a>                       <span class="dt">path =</span> <span class="ot">NULL</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>                       <span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>                       <span class="dt">cache =</span> gargle<span class="op">::</span><span class="kw">gargle_oauth_cache</span>(),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>                       <span class="dt">use_oob =</span> gargle<span class="op">::</span><span class="kw">gargle_oob_default</span>(),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>                       <span class="dt">token =</span> <span class="ot">NULL</span>) { ... }</span></code></pre></div>
 <p>googledrive ships with a default scope, but a motivated user could call <code>drive_auth()</code> pre-emptively at the start of the session and request different scopes. For example, if they intend to only read data and want to guard against inadvertent file modification, they might opt for the <code>drive.readonly</code> scope.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb7-2" data-line-number="2"><span class="kw">drive_auth</span>(<span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive.readonly&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">drive_auth</span>(<span class="dt">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive.readonly&quot;</span>)</span></code></pre></div>
 </div>
 <div id="oauth-cache-and-out-of-bound-auth" class="section level3">
 <h3>OAuth cache and Out-of-bound auth</h3>
@@ -431,61 +430,61 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="getting-that-first-token" class="section level2">
 <h2>Getting that first token</h2>
 <p>I focus on early use, by the naive user, with the OAuth flow. When the user first calls a high-level googledrive function such as <code>drive_find()</code>, a Drive request is ultimately generated with a call to <code>googledrive::request_generate()</code>. Here is its definition, at least approximately:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb8-2" data-line-number="2">request_generate &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">endpoint =</span> <span class="kw">character</span>(),</a>
-<a class="sourceLine" id="cb8-3" data-line-number="3">                             <span class="dt">params =</span> <span class="kw">list</span>(),</a>
-<a class="sourceLine" id="cb8-4" data-line-number="4">                             <span class="dt">key =</span> <span class="ot">NULL</span>,</a>
-<a class="sourceLine" id="cb8-5" data-line-number="5">                             <span class="dt">token =</span> <span class="kw">drive_token</span>()) {</a>
-<a class="sourceLine" id="cb8-6" data-line-number="6">  ept &lt;-<span class="st"> </span>.endpoints[[endpoint]]</a>
-<a class="sourceLine" id="cb8-7" data-line-number="7">  <span class="cf">if</span> (<span class="kw">is.null</span>(ept)) {</a>
-<a class="sourceLine" id="cb8-8" data-line-number="8">    <span class="kw">stop_glue</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Endpoint not recognized:</span><span class="ch">\n</span><span class="st">  * {endpoint}&quot;</span>)</a>
-<a class="sourceLine" id="cb8-9" data-line-number="9">  }</a>
-<a class="sourceLine" id="cb8-10" data-line-number="10"></a>
-<a class="sourceLine" id="cb8-11" data-line-number="11">  <span class="co">## modifications specific to googledrive package</span></a>
-<a class="sourceLine" id="cb8-12" data-line-number="12">  params<span class="op">$</span>key &lt;-<span class="st"> </span>key <span class="op">%||%</span><span class="st"> </span>params<span class="op">$</span>key <span class="op">%||%</span></a>
-<a class="sourceLine" id="cb8-13" data-line-number="13"><span class="st">    </span><span class="kw">drive_api_key</span>() <span class="op">%||%</span><span class="st"> </span><span class="er">&lt;</span>BUILT_IN_DEFAULT_API_KEY<span class="op">&gt;</span></a>
-<a class="sourceLine" id="cb8-14" data-line-number="14"><span class="st">  </span><span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(ept<span class="op">$</span>parameters<span class="op">$</span>supportsTeamDrives)) {</a>
-<a class="sourceLine" id="cb8-15" data-line-number="15">    params<span class="op">$</span>supportsTeamDrives &lt;-<span class="st"> </span><span class="ot">TRUE</span></a>
-<a class="sourceLine" id="cb8-16" data-line-number="16">  }</a>
-<a class="sourceLine" id="cb8-17" data-line-number="17"></a>
-<a class="sourceLine" id="cb8-18" data-line-number="18">  req &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">request_develop</span>(<span class="dt">endpoint =</span> ept, <span class="dt">params =</span> params)</a>
-<a class="sourceLine" id="cb8-19" data-line-number="19">  gargle<span class="op">::</span><span class="kw">request_build</span>(</a>
-<a class="sourceLine" id="cb8-20" data-line-number="20">    <span class="dt">path =</span> req<span class="op">$</span>path,</a>
-<a class="sourceLine" id="cb8-21" data-line-number="21">    <span class="dt">method =</span> req<span class="op">$</span>method,</a>
-<a class="sourceLine" id="cb8-22" data-line-number="22">    <span class="dt">params =</span> req<span class="op">$</span>params,</a>
-<a class="sourceLine" id="cb8-23" data-line-number="23">    <span class="dt">body =</span> req<span class="op">$</span>body,</a>
-<a class="sourceLine" id="cb8-24" data-line-number="24">    <span class="dt">token =</span> token</a>
-<a class="sourceLine" id="cb8-25" data-line-number="25">  )</a>
-<a class="sourceLine" id="cb8-26" data-line-number="26">}</a></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>request_generate &lt;-<span class="st"> </span><span class="cf">function</span>(<span class="dt">endpoint =</span> <span class="kw">character</span>(),</span>
+<span id="cb8-3"><a href="#cb8-3"></a>                             <span class="dt">params =</span> <span class="kw">list</span>(),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>                             <span class="dt">key =</span> <span class="ot">NULL</span>,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>                             <span class="dt">token =</span> <span class="kw">drive_token</span>()) {</span>
+<span id="cb8-6"><a href="#cb8-6"></a>  ept &lt;-<span class="st"> </span>.endpoints[[endpoint]]</span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="cf">if</span> (<span class="kw">is.null</span>(ept)) {</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="kw">stop_glue</span>(<span class="st">&quot;</span><span class="ch">\n</span><span class="st">Endpoint not recognized:</span><span class="ch">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a>  }</span>
+<span id="cb8-10"><a href="#cb8-10"></a></span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="co">## modifications specific to googledrive package</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>  params<span class="op">$</span>key &lt;-<span class="st"> </span>key <span class="op">%||%</span><span class="st"> </span>params<span class="op">$</span>key <span class="op">%||%</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a><span class="st">    </span><span class="kw">drive_api_key</span>() <span class="op">%||%</span><span class="st"> </span><span class="er">&lt;</span>BUILT_IN_DEFAULT_API_KEY<span class="op">&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a><span class="st">  </span><span class="cf">if</span> (<span class="op">!</span><span class="kw">is.null</span>(ept<span class="op">$</span>parameters<span class="op">$</span>supportsTeamDrives)) {</span>
+<span id="cb8-15"><a href="#cb8-15"></a>    params<span class="op">$</span>supportsTeamDrives &lt;-<span class="st"> </span><span class="ot">TRUE</span></span>
+<span id="cb8-16"><a href="#cb8-16"></a>  }</span>
+<span id="cb8-17"><a href="#cb8-17"></a></span>
+<span id="cb8-18"><a href="#cb8-18"></a>  req &lt;-<span class="st"> </span>gargle<span class="op">::</span><span class="kw">request_develop</span>(<span class="dt">endpoint =</span> ept, <span class="dt">params =</span> params)</span>
+<span id="cb8-19"><a href="#cb8-19"></a>  gargle<span class="op">::</span><span class="kw">request_build</span>(</span>
+<span id="cb8-20"><a href="#cb8-20"></a>    <span class="dt">path =</span> req<span class="op">$</span>path,</span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="dt">method =</span> req<span class="op">$</span>method,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>    <span class="dt">params =</span> req<span class="op">$</span>params,</span>
+<span id="cb8-23"><a href="#cb8-23"></a>    <span class="dt">body =</span> req<span class="op">$</span>body,</span>
+<span id="cb8-24"><a href="#cb8-24"></a>    <span class="dt">token =</span> token</span>
+<span id="cb8-25"><a href="#cb8-25"></a>  )</span>
+<span id="cb8-26"><a href="#cb8-26"></a>}</span></code></pre></div>
 <p><code>googledrive::request_generate()</code> is a thin wrapper around <code>gargle::request_develop()</code> and <code>gargle::request_build()</code> that only implements details specific to googledrive, before delegating to more general functions in gargle. The vignette <a href="https://gargle.r-lib.org/articles/request-helper-functions.html">Request Helper Functions</a> documents these gargle functions.</p>
 <p><code>googledrive::request_generate()</code> gets a token with <code>drive_token()</code>, which is defined like so:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb9-2" data-line-number="2">drive_token &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb9-3" data-line-number="3">  <span class="cf">if</span> (<span class="kw">isFALSE</span>(.auth<span class="op">$</span>auth_active)) {</a>
-<a class="sourceLine" id="cb9-4" data-line-number="4">    <span class="kw">return</span>(<span class="ot">NULL</span>)</a>
-<a class="sourceLine" id="cb9-5" data-line-number="5">  }</a>
-<a class="sourceLine" id="cb9-6" data-line-number="6">  <span class="cf">if</span> (<span class="op">!</span><span class="kw">drive_has_token</span>()) {</a>
-<a class="sourceLine" id="cb9-7" data-line-number="7">    <span class="kw">drive_auth</span>()</a>
-<a class="sourceLine" id="cb9-8" data-line-number="8">  }</a>
-<a class="sourceLine" id="cb9-9" data-line-number="9">  httr<span class="op">::</span><span class="kw">config</span>(<span class="dt">token =</span> .auth<span class="op">$</span>cred)</a>
-<a class="sourceLine" id="cb9-10" data-line-number="10">}</a></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>drive_token &lt;-<span class="st"> </span><span class="cf">function</span>() {</span>
+<span id="cb9-3"><a href="#cb9-3"></a>  <span class="cf">if</span> (<span class="kw">isFALSE</span>(.auth<span class="op">$</span>auth_active)) {</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="kw">return</span>(<span class="ot">NULL</span>)</span>
+<span id="cb9-5"><a href="#cb9-5"></a>  }</span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="cf">if</span> (<span class="op">!</span><span class="kw">drive_has_token</span>()) {</span>
+<span id="cb9-7"><a href="#cb9-7"></a>    <span class="kw">drive_auth</span>()</span>
+<span id="cb9-8"><a href="#cb9-8"></a>  }</span>
+<span id="cb9-9"><a href="#cb9-9"></a>  httr<span class="op">::</span><span class="kw">config</span>(<span class="dt">token =</span> .auth<span class="op">$</span>cred)</span>
+<span id="cb9-10"><a href="#cb9-10"></a>}</span></code></pre></div>
 <p>where <code>drive_has_token()</code> in a helper defined as:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb10-1" data-line-number="1"><span class="co"># googledrive::</span></a>
-<a class="sourceLine" id="cb10-2" data-line-number="2">drive_has_token &lt;-<span class="st"> </span><span class="cf">function</span>() {</a>
-<a class="sourceLine" id="cb10-3" data-line-number="3">  <span class="kw">inherits</span>(.auth<span class="op">$</span>cred, <span class="st">&quot;Token2.0&quot;</span>)</a>
-<a class="sourceLine" id="cb10-4" data-line-number="4">}</a></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>drive_has_token &lt;-<span class="st"> </span><span class="cf">function</span>() {</span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="kw">inherits</span>(.auth<span class="op">$</span>cred, <span class="st">&quot;Token2.0&quot;</span>)</span>
+<span id="cb10-4"><a href="#cb10-4"></a>}</span></code></pre></div>
 <p>By default, auth is active, and, for a fresh start, we won’t have a token stashed in <code>.auth</code> yet. So this will result in a call to <code>drive_auth()</code> to obtain a credential, which is then cached in <code>.auth$cred</code> for the remainder of the session. All subsequent calls to <code>drive_token()</code> will just spit back this token.</p>
 <p>Above, we discussed scenarios where an advanced user might call <code>drive_auth()</code> proactively, with non-default arguments, possibly even loading a service token or using alternative flows, like Application Default Credentials or a Google Cloud Engine flow. Any token loaded in that way is stashed in <code>.auth$cred</code> and will be returned by subsequent calls to <code>drive_token()</code>.</p>
 <p>Multiple gargle-using packages can use a shared token by obtaining a suitably scoped token with one package, then registering that token with the other packages. For example, the default scope requested by googledrive is also sufficient for operations available in googlesheets4. You could use a shared token like so:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1"><span class="kw">library</span>(googledrive)</a>
-<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="kw">library</span>(googlesheets4)</a>
-<a class="sourceLine" id="cb11-3" data-line-number="3"></a>
-<a class="sourceLine" id="cb11-4" data-line-number="4"><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;jane_doe@example.com&quot;</span>) <span class="co"># gets a suitably scoped token</span></a>
-<a class="sourceLine" id="cb11-5" data-line-number="5">                                           <span class="co"># and stashes for googledrive use</span></a>
-<a class="sourceLine" id="cb11-6" data-line-number="6"></a>
-<a class="sourceLine" id="cb11-7" data-line-number="7"><span class="kw">sheets_auth</span>(<span class="dt">token =</span> <span class="kw">drive_token</span>())         <span class="co"># registers token with googlesheets4</span></a>
-<a class="sourceLine" id="cb11-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb11-9" data-line-number="9"><span class="co"># now work with both packages freely ...</span></a></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">library</span>(googledrive)</span>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">library</span>(googlesheets4)</span>
+<span id="cb11-3"><a href="#cb11-3"></a></span>
+<span id="cb11-4"><a href="#cb11-4"></a><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;jane_doe@example.com&quot;</span>) <span class="co"># gets a suitably scoped token</span></span>
+<span id="cb11-5"><a href="#cb11-5"></a>                                           <span class="co"># and stashes for googledrive use</span></span>
+<span id="cb11-6"><a href="#cb11-6"></a></span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="kw">sheets_auth</span>(<span class="dt">token =</span> <span class="kw">drive_token</span>())         <span class="co"># registers token with googlesheets4</span></span>
+<span id="cb11-8"><a href="#cb11-8"></a></span>
+<span id="cb11-9"><a href="#cb11-9"></a><span class="co"># now work with both packages freely ...</span></span></code></pre></div>
 <p>It is important to make sure that the token-requesting package (googledrive, above) is using an OAuth app (client ID and secret) for which all the necessary APIs and scopes are enabled.</p>
 </div>
 <div id="auth-interface" class="section level2">
@@ -516,16 +515,16 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 <div id="changing-identities-and-more" class="section level2">
 <h2>Changing identities (and more)</h2>
 <p>One reason for a user to call <code>drive_auth()</code> directly and proactively is to switch from one Google identity to another or to make sure they are presenting themselves with a specific identity. <code>drive_auth()</code> accepts an <code>email</code> argument, which is honored when gargle determines if there is already a suitable token on hand. Here is a sketch of how a user could switch identities during a session, possibly non-interactive:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">library</span>(googledrive)</a>
-<a class="sourceLine" id="cb12-2" data-line-number="2"></a>
-<a class="sourceLine" id="cb12-3" data-line-number="3"><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_work@gmail.com&quot;</span>)</a>
-<a class="sourceLine" id="cb12-4" data-line-number="4"><span class="co"># do stuff with Google Drive here, with Jane Doe's &quot;work&quot; account</span></a>
-<a class="sourceLine" id="cb12-5" data-line-number="5"></a>
-<a class="sourceLine" id="cb12-6" data-line-number="6"><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_personal@gmail.com&quot;</span>)</a>
-<a class="sourceLine" id="cb12-7" data-line-number="7"><span class="co"># do other stuff with Google Drive here, with Jane Doe's &quot;personal&quot; account</span></a>
-<a class="sourceLine" id="cb12-8" data-line-number="8"></a>
-<a class="sourceLine" id="cb12-9" data-line-number="9"><span class="kw">drive_auth</span>(<span class="dt">path =</span> <span class="st">&quot;/path/to/a/service-account.json&quot;</span>)</a>
-<a class="sourceLine" id="cb12-10" data-line-number="10"><span class="co"># do other stuff with Google Drive here, using a service account</span></a></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">library</span>(googledrive)</span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_work@gmail.com&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="co"># do stuff with Google Drive here, with Jane Doe&#39;s &quot;work&quot; account</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a><span class="kw">drive_auth</span>(<span class="dt">email =</span> <span class="st">&quot;janedoe_personal@gmail.com&quot;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="co"># do other stuff with Google Drive here, with Jane Doe&#39;s &quot;personal&quot; account</span></span>
+<span id="cb12-8"><a href="#cb12-8"></a></span>
+<span id="cb12-9"><a href="#cb12-9"></a><span class="kw">drive_auth</span>(<span class="dt">path =</span> <span class="st">&quot;/path/to/a/service-account.json&quot;</span>)</span>
+<span id="cb12-10"><a href="#cb12-10"></a><span class="co"># do other stuff with Google Drive here, using a service account</span></span></code></pre></div>
 </div>
 
 

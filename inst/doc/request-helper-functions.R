@@ -1,20 +1,20 @@
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup---------------------------------------------------------------
+## ----setup--------------------------------------------------------------------
 library(gargle)
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 ddi_dir <- system.file("discovery-doc-ingest", package = "gargle")
 list.files(ddi_dir)
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  .endpoints[["drive.files.create"]]
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive::
 #  request_generate <- function(endpoint = character(),
 #                               params = list(),
@@ -41,7 +41,7 @@ list.files(ddi_dir)
 #    )
 #  }
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # gargle::
 #  request_make <- function(x, ..., user_agent = gargle_user_agent()) {
 #    stopifnot(is.character(x$method))
@@ -63,18 +63,18 @@ list.files(ddi_dir)
 #    )
 #  }
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # googledrive::
 #  request_make <- function(x, ...) {
 #    gargle::request_make(x, ..., user_agent = drive_ua())
 #  }
 
-## ----asis = TRUE, echo = FALSE, comment = NA-----------------------------
+## ----asis = TRUE, echo = FALSE, comment = NA----------------------------------
 cat(readLines(fs::path(ddi_dir, "method-properties-humane.txt")), sep = "\n")
 
-## ----asis = TRUE, echo = FALSE, comment = NA-----------------------------
+## ----asis = TRUE, echo = FALSE, comment = NA----------------------------------
 cat(readLines(fs::path(ddi_dir, "api-wide-parameters-humane.txt")), sep = "\n")
 
-## ----asis = TRUE, echo = FALSE, comment = NA-----------------------------
+## ----asis = TRUE, echo = FALSE, comment = NA----------------------------------
 cat(readLines(fs::path(ddi_dir, "parameter-properties-humane.txt")), sep = "\n")
 

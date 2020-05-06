@@ -1,10 +1,10 @@
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(googledrive)
 #  
 #  drive_auth_configure(api_key = "YOUR_API_KEY_GOES_HERE")
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
 #  
 #  # now you can read public resources without any need for auth
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(googledrive)
 #  
 #  # method 1: direct provision client ID and secret
@@ -30,7 +30,7 @@ knitr::opts_chunk$set(
 #  
 #  # now any new OAuth tokens are obtained with the configured app
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive
 #  drive_auth(path = "/path/to/your/service-account-token.json")
 

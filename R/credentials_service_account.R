@@ -4,6 +4,14 @@
 #' @param path JSON identifying the service account, in one of the forms
 #'   supported for the `txt` argument of [jsonlite::fromJSON()] (typically, a
 #'   file path or JSON string).
+#' @param subject An optional subject claim. Use for a service account which has
+#'   been granted domain-wide authority by an administrator. Such delegation of
+#'   domain-wide authority means that the service account is permitted to act on
+#'   behalf of users, without their consent. Identify the user to impersonate
+#'   via their email, e.g. `subject = "user@example.com"`.
+#'
+#' @seealso Additional reading on delegation of domain-wide authority:
+#' * <https://developers.google.com/identity/protocols/oauth2/service-account#delegatingauthority>
 #'
 #' @return An [`httr::TokenServiceAccount`][httr::Token-class] or `NULL`.
 #' @family credential functions
@@ -17,11 +25,12 @@
 #' }
 credentials_service_account <- function(scopes = NULL,
                                         path = "",
-                                        ...) {
-  cat_line("trying credentials_service_account()")
+                                        ...,
+                                        subject = NULL) {
+  ui_line("trying credentials_service_account()")
   info <- jsonlite::fromJSON(path, simplifyVector = FALSE)
   if (!identical(info[["type"]], "service_account")) {
-    cat_line(
+    ui_line(
       "JSON does not appear to represent a service account\n",
       "did you provide the JSON for an OAuth client instead of for a ",
       "service account?"
@@ -37,13 +46,14 @@ credentials_service_account <- function(scopes = NULL,
     ## https://github.com/r-lib/httr/issues/576
     endpoint = gargle_outh_endpoint(),
     secrets = info,
-    scope = scopes
+    scope = scopes,
+    sub = subject
   )
   if (is.null(token$credentials$access_token) ||
-      !nzchar(token$credentials$access_token)) {
+    !nzchar(token$credentials$access_token)) {
     NULL
   } else {
-    cat_line("service account email: ", token_email(token))
+    ui_line("service account email: ", token_email(token))
     token
   }
 }

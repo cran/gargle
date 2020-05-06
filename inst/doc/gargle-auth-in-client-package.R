@@ -1,10 +1,10 @@
-## ---- include = FALSE----------------------------------------------------
+## ---- include = FALSE---------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # googledrive::
 #  drive_auth <- function(email = gargle::gargle_oauth_email(),
 #                         path = NULL,
@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 #    invisible()
 #  }
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  .auth <- gargle::init_AuthState(
 #    package     = "googledrive",
 #    auth_active = TRUE
@@ -40,7 +40,7 @@ knitr::opts_chunk$set(
 #    # cred = NULL
 #  )
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  library(googledrive)
 #  
 #  google_app <- httr::oauth_app(
@@ -55,7 +55,7 @@ knitr::opts_chunk$set(
 #  #>   key:    123456789.apps.googleusercontent.com
 #  #>   secret: <hidden>
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  library(googledrive)
 #  
 #  drive_auth_configure(api_key = "123456789")
@@ -63,11 +63,11 @@ knitr::opts_chunk$set(
 #  drive_api_key()
 #  #> "123456789"
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive::
 #  drive_auth(email = "janedoe_work@gmail.com")
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # googledrive::
 #  drive_auth <- function(email = gargle::gargle_oauth_email(),
 #                         path = NULL,
@@ -76,11 +76,11 @@ knitr::opts_chunk$set(
 #                         use_oob = gargle::gargle_oob_default(),
 #                         token = NULL) { ... }
 
-## ---- eval = FALSE-------------------------------------------------------
+## ---- eval = FALSE------------------------------------------------------------
 #  # googledrive::
 #  drive_auth(scopes = "https://www.googleapis.com/auth/drive.readonly")
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive::
 #  request_generate <- function(endpoint = character(),
 #                               params = list(),
@@ -108,7 +108,7 @@ knitr::opts_chunk$set(
 #    )
 #  }
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive::
 #  drive_token <- function() {
 #    if (isFALSE(.auth$auth_active)) {
@@ -120,13 +120,13 @@ knitr::opts_chunk$set(
 #    httr::config(token = .auth$cred)
 #  }
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  # googledrive::
 #  drive_has_token <- function() {
 #    inherits(.auth$cred, "Token2.0")
 #  }
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(googledrive)
 #  library(googlesheets4)
 #  
@@ -137,7 +137,7 @@ knitr::opts_chunk$set(
 #  
 #  # now work with both packages freely ...
 
-## ----eval = FALSE--------------------------------------------------------
+## ----eval = FALSE-------------------------------------------------------------
 #  library(googledrive)
 #  
 #  drive_auth(email = "janedoe_work@gmail.com")

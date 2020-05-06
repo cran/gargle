@@ -22,7 +22,7 @@ We assume the wrapper package uses the design described in [How to use gargle fo
   * [bigrquery](https://bigrquery.r-dbi.org) (>= v1.2.0)
   * [googledrive](https://googledrive.tidyverse.org) (>= v1.0.0)
   * [gmailr](https://gmailr.r-lib.org) (>= v1.0.0)
-  * [googlesheets4](https://googlesheets4.tidyverse.org) *GitHub only*
+  * [googlesheets4](https://googlesheets4.tidyverse.org)
   * [gcalendr](https://github.com/andrie/gcalendr) *GitHub only*
 
 Full details on [`gargle::token_fetch()`](https://gargle.r-lib.org/reference/token_fetch.html), which powers this strategy, are given in [How gargle gets tokens](https://gargle.r-lib.org/articles/how-gargle-gets-tokens.html).
@@ -41,11 +41,11 @@ First, a word about deployed environments. If this doesn't apply to you, skip th
 
 Let's identify a specific type of project: it is developed in one place, with interactivity -- such as your local computer -- and then deployed elsewhere, where it must run without further interaction -- such as on [RStudio Connect](https://www.rstudio.com/products/connect/) or [shinyapps.io](https://www.shinyapps.io). In this context, it may make sense to depart from gargle's default behaviour, which is to store tokens outside the project, and to embed them in the project instead. An example at the end of this vignette demonstrates the use of a project-level OAuth cache. A service account token could also be stored in the project. When you embed tokens in the project and deploy, remember, that they are no more secure or hidden than the other source files in the project.
 
-The vignette [Managing tokens securely](https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html) describes a method for embedding an encrypted token in the project, which is an extra level of care needed to work with, e.g., continuous integration services, such as Travis-CI or AppVeyor.
+The vignette [Managing tokens securely](https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html) describes a method for embedding an encrypted token in the project, which is an extra level of care needed to work with, e.g., continuous integration services, such as GitHub Actions, Travis-CI, or AppVeyor.
 
 ## Sidebar 2: I just want my `.Rmd` to render
 
-TL;DR is that you need to give gargle permission to use a token it finds in the cache. These sorts of commands achieve that:
+TL;DR is that you need to successfully authenticate *once* in an interactive session and then, in your code, give gargle permission to use a token it finds in the cache. These sorts of commands achieve that:
 
 ```{r}
 # Approach #1: use an option.
@@ -82,7 +82,24 @@ drive_auth(path = "/path/to/your/service-account-token.json")
 
 If this code is running on, e.g., a continuous integration service and you need to use an encrypted token, see the gargle article [Managing tokens securely](https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html).
 
-For certain APIs, service accounts are inherently awkward, in which case you might have to resort to an OAuth user token. Gmail is a good example. In this case, you might want the service account to act on your behalf, e.g., to send email as you. This is described as "impersonation", which should tip you off that Google does not really encourage this workflow. This requires [granting the service account domain-wide authority](https://developers.google.com/admin-sdk/directory/v1/guides/delegation), which requires that your account is associated with a G Suite domain and also approval from the domain's administrator. If this is impossible or unappealing, use an OAuth user token, as described below.
+For certain APIs, service accounts are inherently awkward, because you often want to do things *on behalf of a specific user*. Gmail is a good example. If you are sending email programmatically, there's a decent chance you want to send it as yourself (or from some other specific email account) instead of from `zestybus-geosyogl@fuffapster-654321.iam.gserviceaccount.com`. This is described as "impersonation", which should tip you off that Google does not exactly encourage this workflow. Some details:
+
+* This requires "delegating domain-wide authority " to the service account.
+* It is only possible in the context of a G Suite domain and only an
+  administrator of the domain can set this up.
+* The domain-wide authority is granted only for specific scopes, so those can be
+  as narrow as possible. This may make a domain administrator more receptive
+  to the idea.
+* This is documented in a few different places, such as:
+  - [Delegating domain-wide authority to the service account](https://developers.google.com/identity/protocols/oauth2/service-account#delegatingauthority) from Google Identity Platform docs
+  - [Perform G Suite Domain-Wide Delegation of Authority](https://developers.google.com/admin-sdk/directory/v1/guides/delegation) from G Suite Admin SDK docs
+* The `subject` argument of `credentials_service_account()` and
+  `credentials_app_default()` is available to specify which user to
+  impersonate, e.g. `subject = "user@example.com"`. This argument first appeared
+  in gargle 0.5.0, so it may not necessarily be exposed yet in user-facing auth functions like `drive_auth()`. If you need `subject` in a client package, that
+  is a reasonable feature request.
+
+If delegation of domain-wide authority is impossible or unappealing, you must use an OAuth user token, as described below.
 
 ## Rig a service account token as Application Default Credentials
 
@@ -184,7 +201,7 @@ drive_auth(email = "jenny@example.org")
 
 This is like the previous example, but with an added twist: we use a project-level OAuth cache. This is good for deployed data products.
 
-**Step 1**: Obtain the token intended for non-interactive use and make sure it's cached in a (hidden) directory of the current project. Using gcalendr as an example:
+**Step 1**: Obtain the token intended for non-interactive use and make sure it's cached in a (hidden) directory of the current project. Using googledrive as an example:
 
 ```{r}
 library(googledrive)
@@ -215,7 +232,7 @@ drive_auth(cache = ".secrets")
 
 If you are doing setup in a web-based environment, such as RStudio Server, you may also need to request out-of-band auth, whenever you are first acquiring a token. That is a separate issue, which is explained in [Auth when using R in the browser](https://gargle.r-lib.org/articles/auth-from-web.html).
 
-**Step 2**: In all downstream use, announce the location of the cache and pre-authorize the use of a suitable token discovered there. Continuing the gcalendr example:
+**Step 2**: In all downstream use, announce the location of the cache and pre-authorize the use of a suitable token discovered there. Continuing the googledrive example:
 
 ```{r}
 library(googledrive)
@@ -225,11 +242,11 @@ options(
   gargle_oauth_email = TRUE
 )
 
-# now use gcalendr with no need for explicit auth
+# now use googledrive with no need for explicit auth
 drive_find(n_max = 5)
 ```
 
-Setting the option `gargle_oauth_email = TRUE` says that gcalendr is allowed to use a token that it finds in the cache, without interacting with a user, as long as it discovers EXACTLY one matching token. This option-setting code needs to appear in each script, `.Rmd`, or app that needs to use this token non-interactively. Depending on the context, it might be suitable to accomplish this in a startup file, e.g. project-level `.Rprofile`.
+Setting the option `gargle_oauth_email = TRUE` says that googledrive is allowed to use a token that it finds in the cache, without interacting with a user, as long as it discovers EXACTLY one matching token. This option-setting code needs to appear in each script, `.Rmd`, or app that needs to use this token non-interactively. Depending on the context, it might be suitable to accomplish this in a startup file, e.g. project-level `.Rprofile`.
 
 Here's a variation where we say which token to use by explicitly specifying the associated email. This is handy if there's a reason to have more than one token in the cache.
 
@@ -241,7 +258,7 @@ options(
   gargle_oauth_email = "jenny@example.org"
 )
 
-# now use gcalendr with no need for explicit auth
+# now use googledrive with no need for explicit auth
 drive_find(n_max = 5)
 ```
 
@@ -252,7 +269,7 @@ library(googledrive)
 
 drive_auth(cache = ".secrets", email = TRUE)
 
-# now use gcalendr with no need for explicit auth
+# now use googledrive with no need for explicit auth
 drive_fine(n_max = 5)
 ```
 
@@ -263,7 +280,7 @@ library(googledrive)
 
 drive_auth(cache = ".secrets", email = "jenny@example.org")
 
-# now use gcalendr with no need for explicit auth
+# now use googledrive with no need for explicit auth
 drive_auth(n_max = 5)
 ```
 
