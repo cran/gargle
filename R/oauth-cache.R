@@ -214,7 +214,7 @@ token_match <- function(candidate, existing, package = "gargle") {
       "See gargle's \"Non-interactive auth\" vignette for more details:\n",
       "https://gargle.r-lib.org/articles/non-interactive-auth.html"
     )
-    msg <- glue::glue_collapse(msg)
+    msg <- glue_collapse(msg)
     # morally, I'd like to throw a warning but current design of token_fetch()
     # means warnings are caught
     ui_line(msg)
@@ -327,11 +327,12 @@ gargle_oauth_sitrep <- function(cache = NULL) {
     )
   }
 
-  ui_line(glue_data(
+  lines <- glue_data(
     df,
     "{email} {app} {scopes} {hash...}",
     .transformer = format_transformer
-  ))
+  )
+  ui_line(glue_collapse(lines, sep = "\n"))
 
   df$hash... <- NULL
   invisible(df)
