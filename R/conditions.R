@@ -1,33 +1,49 @@
-stop_bad_class <- function(object, expected_class) {
+#' Error conditions for the gargle package
+#'
+#' @param class Use only if you want to subclass beyond `gargle_error`
+#'
+#' @keywords internal
+#' @name gargle-conditions
+#' @noRd
+NULL
+
+gargle_abort <- function(message, ..., class = NULL, .envir = parent.frame()) {
+  abort(
+    glue_lines(message, .envir = .envir),
+    class = c(class, "gargle_error"),
+    ...
+  )
+}
+
+# my heart's not totally in this because I'm not sure we should really be
+# throwing any warnings, however we currently do re: token refresh
+# so this wrapper makes the messaging more humane
+# I am declining to add a class, e.g. gargle_warning
+gargle_warn <- function(message, ..., class = NULL, .envir = parent.frame()) {
+  warn(
+    glue_lines(message, .envir = .envir),
+    ...
+  )
+}
+
+gargle_abort_bad_class <- function(object, expected_class) {
   nm <- as_name(ensym(object))
   actual_class <- class(object)
-  actual <- glue_collapse(actual_class, sep = "/")
-  expected <- glue_collapse(expected_class, sep = ", ", last = " or ")
-  message <- glue("{bt(nm)} must be {expected}, not of class {sq(actual)}.")
-  abort(
-    "gargle_error_bad_class",
-    message = message,
+  actual <- glue("<{glue_collapse(actual_class, sep = '/')}>")
+  expected <- glue_collapse(glue("<{expected_class}>"), sep = ", ", last = " or ")
+  gargle_abort(
+    "{bt(nm)} must be {expected}, not of class {sq(actual)}",
+    class = "gargle_error_bad_class",
     object_name = nm,
     actual_class = actual_class,
     expected_class = expected_class
   )
 }
 
-stop_need_user_interaction <- function(message) {
-  abort(
-    "gargle_error_need_user_interaction",
-    message = message
-  )
-}
-
-stop_bad_params <- function(names, reason) {
-  message <- glue_collapse(
-    c(glue("These parameters are {reason}:"), names),
-    sep = "\n"
-  )
-  abort(
-    "gargle_error_bad_params",
-    message = message,
+gargle_abort_bad_params <- function(names, reason) {
+  gargle_abort(
+    c("These parameters are {reason}:", names),
+    class = "gargle_error_bad_params",
     names = names,
     reason = reason
   )

@@ -81,7 +81,7 @@
 #' * <https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/>
 #' * <https://tech.channable.com/posts/2020-02-05-opnieuw.html>
 #' * <https://github.com/channable/opnieuw>
-#' * <https://cloud.google.com/storage/docs/exponential-backoff>
+#' * <https://cloud.google.com/storage/docs/retry-strategy>
 #' * <https://cloud.google.com/storage/docs/gsutil/addlhelp/RetryHandlingStrategy>
 #' * <https://tools.ietf.org/html/rfc7231#section-7.1.3>
 #' * <https://developers.google.com/sheets/api/limits>
@@ -165,26 +165,19 @@ backoff <- function(tries_made,
 
   status_code <- httr::status_code(resp)
 
-  # ALERT we're going to emit information regardless of the value of
-  # gargle_quiet(). But we'll be very brief it it's FALSE.
-  if (gargle_quiet()) {
-    msg <- glue("
-        Request failed [{status_code}]. Retry {tries_made} happens in \\
-        {round(wait_time, 1)} seconds ...
-                  ")
-  } else {
+  if (gargle_verbosity() == "debug") {
     msg <- c(
-      glue("Request failed [{status_code}]."), "",
-      gargle_error_message(resp), "",
-      glue("
-          Retry {tries_made} happens in {round(wait_time, 1)} seconds ...
-          (strategy: {wait_rationale})
-             ")
+      "Request failed [{status_code}]",
+      gargle_error_message(resp),
+      "Retry {tries_made} happens in {round(wait_time, 1)} seconds ...",
+      "(strategy: {wait_rationale})"
     )
-    msg <- glue_collapse(msg, sep = "\n")
+    gargle_debug(msg)
+  } else {
+    gargle_info("
+      Request failed [{status_code}]. Retry {tries_made} happens in \\
+      {round(wait_time, 1)} seconds ...")
   }
-  ui_line(msg, quiet = FALSE)
-
   wait_time
 }
 
@@ -204,7 +197,11 @@ retry_after_header <- function(resp) {
 }
 
 sheets_per_user_quota_exhaustion <- function(resp) {
-  any(grepl("per user per 100 seconds", gargle_error_message(resp)))
+  msg <- gargle_error_message(resp)
+  # the structure of this error and the wording of this message have changed
+  # over time
+  any(grepl("per user per 100 seconds", msg)) ||
+    any(grepl("per minute per user", msg))
 }
 
 calculate_base_wait <- function(n_waits, total_wait_time) {

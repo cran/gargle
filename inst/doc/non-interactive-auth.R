@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 #  drive_auth(path = "/path/to/your/service-account-token.json")
 
 ## -----------------------------------------------------------------------------
-#  options(gargle_quiet = FALSE)
+#  options(gargle_verbosity = "debug")
 
 ## -----------------------------------------------------------------------------
 #  library(googledrive)
@@ -115,5 +115,5 @@ knitr::opts_chunk$set(
 #  drive_auth(n_max = 5)
 
 ## -----------------------------------------------------------------------------
-#  options(gargle_quiet = FALSE)
+#  options(gargle_verbosity = "debug")
 

@@ -18,11 +18,17 @@
 #'   * Status code in the 100s (information) or 300s (redirection). These are
 #'     unexpected.
 #'
-#' @details
 #' If `process_response()` results in an error, a redacted version of the `resp`
-#' input is returned in the condition (auth tokens are removed). Use functions
-#' such as `rlang::last_error()` or `rlang::catch_cnd()` to capture the
-#' condition and do a more detailed forensic examination.
+#' input is returned in the condition (auth tokens are removed).
+#'
+#' @details
+#' When `remember = TRUE` (the default), gargle stores the most recently seen
+#' response internally, for *post hoc* examination. The stored response is
+#' literally just the most recent `resp` input, but with auth tokens redacted.
+#' It can be accessed via the unexported function
+#' `gargle:::gargle_last_response()`. A companion function
+#' `gargle:::gargle_last_content()` returns the content of the last response,
+#' which is probably the most useful form for *post mortem* analysis.
 #'
 #' The `response_as_json()` helper is exported only as an aid to maintainers who
 #' wish to use their own `error_message` function, instead of gargle's built-in
@@ -33,6 +39,7 @@
 #' @param resp Object of class `response` from [httr].
 #' @param error_message Function that produces an informative error message from
 #'   the primary input, `resp`. It must return a character vector.
+#' @param remember Whether to remember the most recently processed response.
 #'
 #' @return The content of the request, as a list. An HTTP status code of 204 (No
 #'   content) is a special case returning `TRUE`.
@@ -63,7 +70,12 @@
 #' resp <- gargle::request_make(req)
 #' response_process(resp)
 #' }
-response_process <- function(resp, error_message = gargle_error_message) {
+response_process <- function(resp,
+                             error_message = gargle_error_message,
+                             remember = TRUE) {
+  if (remember) {
+    gargle_env$last_response <- redact_response(resp)
+  }
   code <- httr::status_code(resp)
 
   if (code >= 200 && code < 300) {
@@ -74,7 +86,7 @@ response_process <- function(resp, error_message = gargle_error_message) {
       response_as_json(resp)
     }
   } else {
-    stop_request_failed(error_message(resp), resp)
+    gargle_abort_request_failed(error_message(resp), resp)
   }
 }
 
@@ -101,11 +113,17 @@ check_for_json <- function(resp) {
     "{obfuscate(content, first = 197, last = 0)}"
   ))
 
-  stop_request_failed(message, resp)
+  gargle_abort_request_failed(message, resp)
 }
 
-stop_request_failed <- function(message, resp) {
-  abort(
+gargle_abort_request_failed <- function(message, resp) {
+  gargle_abort(
+    # TODO: take advantage of future developments in abort()'s error
+    # message formatting
+    # https://github.com/r-lib/rlang/issues/1130
+    # https://github.com/r-lib/rlang/pull/1144
+    # for now, it's better to keep doing it myself, when presenting these
+    # Google errors
     glue_collapse(message, sep = "\n"),
     class = c(
       "gargle_error_request_failed",
@@ -128,33 +146,39 @@ gargle_error_message <- function(resp) {
       httr::http_status(resp)$message,
       glue("  * {content$error_description}")
     )
-  } else {
-    errors <- error[["errors"]]
-    if (is.null(errors)) {
-      # developed from test fixtures from "sheets.spreadsheets.get" endpoint
-      status <- httr::http_status(resp)
-      rpc <- rpc_description(error$status)
+    return(message)
+  }
+  errors <- error[["errors"]]
+
+  if (is.null(errors)) {
+    # developed from test fixtures from "sheets.spreadsheets.get" endpoint
+    status <- httr::http_status(resp)
+    rpc <- rpc_description(error$status)
+    message <- c(
+      glue("{status$category}: ({error$code}) {error$status}"),
+      glue("  * {rpc}"),
+      glue("  * {error$message}")
+    )
+    if (!is.null(error$details)) {
       message <- c(
-        glue("{status$category}: ({error$code}) {error$status}"),
-        glue("  * {rpc}"),
-        glue("  * {error$message}")
-      )
-      if (!is.null(error$details)) {
-        message <- c(
-          message,
-          "",
-          reveal_details(error$details)
-        )
-      }
-    } else {
-      # developed from test fixture from "drive.files.get" endpoint
-      errors <- unlist(errors)
-      message <- c(
-        httr::http_status(resp)$message,
-        glue("  * {format(names(errors), justify = 'right')}: {errors}")
+        message,
+        "",
+        reveal_details(error$details)
       )
     }
+    return(message)
   }
+
+  # developed from
+  # - test fixture from "drive.files.get" endpoint
+  # - response_process() example of under/mis-scoped token
+  errors <- unlist(errors)
+  message <- c(
+    httr::http_status(resp)$message,
+    error$message,
+    error$status,
+    glue("  * {format(names(errors), justify = 'right')}: {errors}")
+  )
   message
 }
 
@@ -227,11 +251,17 @@ reveal_detail <- function(x) {
     ))
     c("Links", bullets)
   }
+  rpc_error_info <- function(e) {
+    e <- unlist(e)
+    e <- e[names(e) != "@type"]
+    glue_data(as.list(e), "  * {names(e)}: {e}")
+  }
 
   switch(
     type,
     "google.rpc.BadRequest" = rpc_bad_request(x),
     "google.rpc.Help"       = rpc_help(x),
+    "google.rpc.ErrorInfo"  = rpc_error_info(x),
     # must be an unimplemented type, such as RetryInfo, QuotaFailure, etc.
     glue_lines(c(
       "  * Error details of type {sq(type)} may not be fully revealed.",
