@@ -184,7 +184,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <div id="gargle_oauth_sitrep" class="section level2">
 <h2><code>gargle_oauth_sitrep()</code></h2>
 <p><code>gargle_oauth_sitrep()</code> provides an OAuth2 “situation report”.</p>
-<p><code>gargle_oauth_sitrep()</code> is only relevant to OAuth2 user tokens. If you are using (or struggling to use) a service account token, Application Default Credentials, or credentials from the GCE metadata service, <code>gargle_oauth_sitrep()</code> isn’t going to help you figure out what’s going on.</p>
+<p><code>gargle_oauth_sitrep()</code> is only relevant to OAuth2 user tokens. If you are using (or struggling to use) a service account token, workload identity federation, Application Default Credentials, or credentials from the GCE metadata service, <code>gargle_oauth_sitrep()</code> isn’t going to help you figure out what’s going on.</p>
 <p>Here is indicative output of <code>gargle_oauth_sitrep()</code>, for someone who has accepted the default OAuth cache location and has played with several APIs via gargle-using packages.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_oauth_sitrep</span>()</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; &gt; 14 tokens found in this gargle OAuth cache:</span></span>

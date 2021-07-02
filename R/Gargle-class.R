@@ -10,8 +10,10 @@
 #'   always determined from the token itself, never from this argument. Use `NA`
 #'   or `FALSE` to match nothing and force the OAuth dance in the browser. Use
 #'   `TRUE` to allow email auto-discovery, if exactly one matching token is
-#'   found in the cache. Defaults to the option named "gargle_oauth_email",
-#'   retrieved by [gargle::gargle_oauth_email()].
+#'   found in the cache. Specify just the domain with a glob pattern, e.g.
+#'   `"*@example.com"`, to create code that "just works" for both
+#'   `alice@example.com` and `bob@example.com`. Defaults to the option named
+#'   "gargle_oauth_email", retrieved by [gargle::gargle_oauth_email()].
 #' @param app An OAuth consumer application, created by [httr::oauth_app()].
 #' @param package Name of the package requesting a token. Used in messages.
 #' @param scope A character vector of scopes to request.
@@ -110,25 +112,25 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
     gargle_debug("Gargle2.0 initialize")
     stopifnot(
       is.null(email) || is_scalar_character(email) ||
-        isTRUE(email) || isFALSE(email) || is.na(email),
+        isTRUE(email) || isFALSE(email) || is_na(email),
       is.oauth_app(app),
       is_string(package),
       is.list(params)
     )
     if (identical(email, "")) {
       gargle_abort("
-        {bt('email')} must not be \"\" (the empty string)
+        {.arg email} must not be \"\" (the empty string).
         Do you intend to consult an env var, but it's unset?")
     }
     if (isTRUE(email)) {
       email <- "*"
     }
-    if (isFALSE(email) || isNA(email)) {
+    if (isFALSE(email) || is_na(email)) {
       email <- NA_character_
     }
     # https://developers.google.com/identity/protocols/OpenIDConnect#login-hint
     # optional hint for the auth server to pre-fill the email box
-    login_hint <- if (is_string(email) && email != "*") email
+    login_hint <- if (is_string(email) && !startsWith(email, "*")) email
 
     self$endpoint   <- gargle_oauth_endpoint()
     self$email      <- email
@@ -192,7 +194,7 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
   #' @description (Attempt to) get a Gargle2.0 token from the cache
   load_from_cache = function() {
     gargle_debug("loading token from the cache")
-    if (is.null(self$cache_path) || isTRUE(is.na(self$email))) return(FALSE)
+    if (is.null(self$cache_path) || is_na(self$email)) return(FALSE)
 
     cached <- token_from_cache(self)
     if (is.null(cached)) return(FALSE)
@@ -234,7 +236,7 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
     } else {
       # TODO: good candidate for an eventual sub-classed gargle error
       # would be useful in testing to know that this is exactly where we aborted
-      gargle_abort("OAuth2 flow requires an interactive session")
+      gargle_abort("OAuth2 flow requires an interactive session.")
     }
   }
 ))
@@ -246,8 +248,8 @@ encourage_httpuv <- function() {
   local_gargle_verbosity("info")
   gargle_info(c(
     "The {.pkg httpuv} package enables a nicer Google auth experience, \\
-     in many cases",
-    "It doesn't seem to be installed",
+     in many cases.",
+    "It doesn't seem to be installed.",
     "Would you like to install it now?"))
   if (utils::menu(c("Yes", "No")) == 1) {
     utils::install.packages("httpuv")

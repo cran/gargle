@@ -25,7 +25,7 @@ secret_pw_get <- function(package) {
   pw <- Sys.getenv(pw_name, "")
   if (identical(pw, "")) {
     gargle_abort_secret(
-      message = glue("Envvar {sq(pw_name)} is not defined"),
+      message = "Env var {.envvar {pw_name}} is not defined.",
       package = package
     )
   }
@@ -75,7 +75,7 @@ secret_path <- function(package, name) {
 # Returns a raw vector
 secret_read <- function(package, name) {
   if (!secret_can_decrypt(package)) {
-    gargle_abort_secret(message = "Decryption not available", package = package)
+    gargle_abort_secret(message = "Decryption not available.", package = package)
   }
 
   path <- secret_path(package, name)
@@ -90,7 +90,7 @@ secret_read <- function(package, name) {
 
 gargle_abort_secret <- function(message, package) {
   gargle_abort(
-    "gargle_error_secret",
+    class = "gargle_error_secret",
     message = message,
     package = package
   )

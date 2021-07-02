@@ -220,6 +220,14 @@ test_that("token_match() returns NULL if no email and no short hash match", {
   expect_null(token_match("abc_*", "def_a@example.org"))
 })
 
+test_that("token_match() finds a match based on domain", {
+  one_match_of_two <- c("abc_jane@example.org", "abc_jane@gmail.com")
+  expect_snapshot(
+    m <- token_match("abc_*@example.org", one_match_of_two)
+  )
+  expect_equal(m, one_match_of_two[[1]])
+})
+
 test_that("token_match() scolds but returns short hash match when non-interactive", {
   local_interactive(FALSE)
 
@@ -317,6 +325,31 @@ test_that("gargle_oauth_sitrep() works with a cache", {
     gargle_oauth_sitrep(tmp_cache),
     type = "message"
   )
+  out <- sub(tmp_cache, "{path to gargle oauth cache}", out, fixed = TRUE)
+  out <- sub("[[:xdigit:]]{7}[.]{3}", "{hash...}", out)
+  expect_snapshot(
+    writeLines(out)
+  )
+})
+
+test_that("gargle_oauth_sitrep() consults the option for cache location", {
+  tmp_cache <- file_temp()
+  withr::defer(dir_delete(tmp_cache))
+
+  gargle2.0_token(
+    email = "a@example.org",
+    credentials = list(a = 1),
+    cache = tmp_cache
+  )
+
+  withr::local_options(list(gargle_oauth_cache = tmp_cache))
+  local_gargle_verbosity("debug")
+  out <- capture.output(
+    gargle_oauth_sitrep(),
+    type = "message"
+  )
+  # bit of fiddliness to remove the volatile path and the hashes that can vary
+  # by OS
   out <- sub(tmp_cache, "{path to gargle oauth cache}", out, fixed = TRUE)
   out <- sub("[[:xdigit:]]{7}[.]{3}", "{hash...}", out)
   expect_snapshot(

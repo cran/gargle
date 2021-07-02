@@ -82,9 +82,8 @@
 #' * <https://tech.channable.com/posts/2020-02-05-opnieuw.html>
 #' * <https://github.com/channable/opnieuw>
 #' * <https://cloud.google.com/storage/docs/retry-strategy>
-#' * <https://cloud.google.com/storage/docs/gsutil/addlhelp/RetryHandlingStrategy>
 #' * <https://tools.ietf.org/html/rfc7231#section-7.1.3>
-#' * <https://developers.google.com/sheets/api/limits>
+#' * <https://developers.google.com/sheets/api/reference/limits>
 #' * <https://googleapis.dev/python/google-api-core/latest/retry.html>
 #'
 #' @inherit request_make return
@@ -167,16 +166,16 @@ backoff <- function(tries_made,
 
   if (gargle_verbosity() == "debug") {
     msg <- c(
-      "Request failed [{status_code}]",
-      gargle_error_message(resp),
-      "Retry {tries_made} happens in {round(wait_time, 1)} seconds ...",
-      "(strategy: {wait_rationale})"
+      "x" = "Request failed [{status_code}]",
+      " " = gargle_error_message(resp),
+      "i" = "Retry {tries_made} happens in {round(wait_time, 1)} seconds ...",
+      " " = "(strategy: {wait_rationale})"
     )
     gargle_debug(msg)
   } else {
-    gargle_info("
-      Request failed [{status_code}]. Retry {tries_made} happens in \\
-      {round(wait_time, 1)} seconds ...")
+    gargle_info(c(
+      "x" = "Request failed [{status_code}]. Retry {tries_made} happens in \\
+             {round(wait_time, 1)} seconds ..."))
   }
   wait_time
 }

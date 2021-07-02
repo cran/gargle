@@ -31,8 +31,8 @@ gargle’s functionality falls into two main domains:
     credential-fetching functions to obtain a valid access token (or it
     quietly dies trying).
     -   This covers explicit service accounts, application default
-        credentials, Google Compute Engine, and the standard OAuth2
-        browser flow.
+        credentials, Google Compute Engine, (experimentally) workload
+        identity federation, and the standard OAuth2 browser flow.
     -   gargle offers the `Gargle2.0` class, which extends
         `httr::Token2.0`. It is the default class for user OAuth 2.0
         credentials. There are two main differences from
@@ -114,7 +114,7 @@ out <- response_process(resp)
 out <- out[["items"]][1:8]
 sort(vapply(out, function(x) x[["family"]], character(1)))
 #> [1] "Lato"             "Montserrat"       "Noto Sans JP"     "Open Sans"       
-#> [5] "Oswald"           "Roboto"           "Roboto Condensed" "Source Sans Pro"
+#> [5] "Poppins"          "Roboto"           "Roboto Condensed" "Source Sans Pro"
 ```
 
 Please note that the ‘gargle’ project is released with a [Contributor
