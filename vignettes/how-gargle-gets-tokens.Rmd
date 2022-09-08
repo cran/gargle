@@ -110,7 +110,7 @@ If any of that happens, we fail and `token_fetch()`'s execution moves on to the 
 Here is some Google documentation about workload identity federation and the specifics for AWS:
 
 * Blog post: [Keyless API authentication — Better cloud security through workload identity federation, no service account keys necessary](https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation/)
-* Documentation: [How to use identity federation to access Google Cloud resources from Amazon Web Services (AWS)](https://cloud.google.com/iam/docs/access-resources-aws)
+* Documentation: [Configuring workload identity federation](https://cloud.google.com/iam/docs/configuring-workload-identity-federation)
 
 ## `credentials_app_default()`
 
@@ -126,7 +126,7 @@ credentials_app_default(
 )
 ```
 
-`credentials_app_default()` loads credentials from a file identified via a search strategy known as [Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication/production#providing_credentials_to_your_application).
+`credentials_app_default()` loads credentials from a file identified via a search strategy known as [Application Default Credentials (ADC)](https://cloud.google.com/docs/authentication#adc).
 The credentials themselves are conventional service account, external account, or user credentials that happen to be stored in a pre-ordained location and format.
 
  The hope is to make auth "just work" for someone working on Google-provided infrastructure or who has used Google tooling to get started, such as the [`gcloud` command line tool](https://cloud.google.com/sdk/gcloud).

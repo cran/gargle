@@ -22,9 +22,9 @@
 #'   by `request_build()`, using named parameters found in `params`.
 #' @param body List. Values to send in the API request body.
 #' @param key API key. Needed for requests that don't contain a token. For more,
-#'   see Google's document [Credentials, access, security, and
-#'   identity](https://support.google.com/googleapi/answer/6158857?hl=en&ref_topic=7013279).
-#'   A key can be passed as a named component of `params`, but note that the
+#'   see Google's document Credentials, access, security, and identity
+#'   (`https://support.google.com/googleapi/answer/6158857?hl=en&ref_topic=7013279`).
+#'    A key can be passed as a named component of `params`, but note that the
 #'   formal argument `key` will clobber it, if non-`NULL`.
 #' @param token Token, ready for inclusion in a request, i.e. prepared with
 #'   [httr::config()].
@@ -136,7 +136,7 @@
 request_develop <- function(endpoint,
                             params = list(),
                             base_url = "https://www.googleapis.com") {
-  check_params(params, endpoint$parameters)
+  check_params(params, endpoint$parameters, endpoint$id)
   in_body <- vapply(
     endpoint$parameters,
     function(x) x$location == "body",
@@ -190,16 +190,16 @@ request_build <- function(method = "GET",
 ## check params provided by user against spec
 ##   * error if required params are missing
 ##   * error for unknown params
-check_params <- function(provided, spec) {
+check_params <- function(provided, spec, id, call = caller_env()) {
   required <- Filter(function(x) isTRUE(x$required), spec)
   missing <- setdiff(names(required), names(provided))
   if (length(missing)) {
-    gargle_abort_bad_params(missing, reason = "missing")
+    gargle_abort_bad_params(missing, reason = "missing", id, call = call)
   }
 
   unknown <- setdiff(names(provided), names(spec))
   if (length(unknown)) {
-    gargle_abort_bad_params(unknown, reason = "unknown")
+    gargle_abort_bad_params(unknown, reason = "unknown", id, call = call)
   }
 
   invisible(provided)

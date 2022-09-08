@@ -37,13 +37,15 @@ tooling to get started, such as the \href{https://cloud.google.com/sdk/gcloud}{\
 
 A sequence of paths is consulted, which we describe here, with some abuse of
 notation. ALL_CAPS represents the value of an environment variable and \verb{\%||\%}
-is used in the spirit of a \href{https://en.wikipedia.org/wiki/Null_coalescing_operator}{null coalescing operator}.\preformatted{GOOGLE_APPLICATION_CREDENTIALS
+is used in the spirit of a \href{https://en.wikipedia.org/wiki/Null_coalescing_operator}{null coalescing operator}.
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{GOOGLE_APPLICATION_CREDENTIALS
 CLOUDSDK_CONFIG/application_default_credentials.json
 # on Windows:
 (APPDATA \%||\% SystemDrive \%||\% C:)\\gcloud\\application_default_credentials.json
 # on not-Windows:
 ~/.config/gcloud/application_default_credentials.json
-}
+}\if{html}{\out{</div>}}
 
 If the above search successfully identifies a JSON file, it is parsed and
 ingested as a service account, an external account ("workload identity
@@ -58,7 +60,7 @@ credentials_app_default()
 }
 \seealso{
 \itemize{
-\item \url{https://cloud.google.com/docs/authentication/production#providing_credentials_to_your_application}
+\item \url{https://cloud.google.com/docs/authentication#adc}
 \item \url{https://cloud.google.com/sdk/docs/}
 }
 

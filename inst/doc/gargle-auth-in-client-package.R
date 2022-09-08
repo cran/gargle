@@ -133,7 +133,7 @@ knitr::opts_chunk$set(
 #  drive_auth(email = "jane_doe@example.com") # gets a suitably scoped token
 #                                             # and stashes for googledrive use
 #  
-#  sheets_auth(token = drive_token())         # registers token with googlesheets4
+#  gs4_auth(token = drive_token())            # registers token with googlesheets4
 #  
 #  # now work with both packages freely ...
 

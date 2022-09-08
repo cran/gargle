@@ -1,3 +1,18 @@
+# gargle 1.2.1
+
+* Help files below `man/` have been re-generated, so that they give rise to valid HTML5. (This is the impetus for this release, to keep the package safely on CRAN.)
+
+* We have switched to newer oauth2.googleapis.com-based OAuth2 URIs, moving away from the accounts.google.com and googleapis.com/oauth2 equivalents.
+
+* `credentials_gce()` no longer validates the requested scopes against instance scopes.
+In practice, it's easy for this check to be more of a nuisance than a help (#161, #185 @craigcitro).
+
+* `request_retry()` retries for an expanded set of HTTP codes: 408, 429, 500, 502, 503. Previously, retries were limited to 429 (#169).
+
+## Dependency changes
+
+* The minimum versions of rlang and testthat have been bumped. The motivation is to exploit and adapt to the changes to the display of error messages.
+
 # gargle 1.2.0
 
 ## Workload identity federation
@@ -196,7 +211,7 @@ mockr is new in Suggests, since `testthat::use_mock()` is superseded.
 
 # gargle 0.2.0
 
-* All built-in API credentials have been rotated and are stored internally in a way that reinforces appropriate use. There is a new [Privacy policy](https://www.tidyverse.org/google_privacy_policy/) as well as a [policy for authors of packages or other applications](https://www.tidyverse.org/google_privacy_policy/#policies-for-authors-of-packages-or-other-applications). This is related to a process to get the gargle project [verified](https://support.google.com/cloud/answer/7454865?hl=en), which affects the OAuth2 capabilities and the consent screen.
+* All built-in API credentials have been rotated and are stored internally in a way that reinforces appropriate use. There is a new [Privacy policy](https://www.tidyverse.org/google_privacy_policy/) as well as a [policy for authors of packages or other applications](https://www.tidyverse.org/google_privacy_policy/#policies-for-authors-of-packages-or-other-applications). This is related to a process to get the gargle project verified, which affects the OAuth2 capabilities and the consent screen.
 
 * New vignette on "How to get your own API credentials", to help other package authors or users obtain their own API key or OAuth client ID and secret.
 

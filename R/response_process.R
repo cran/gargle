@@ -101,7 +101,7 @@ response_as_json <- function(resp) {
   jsonlite::fromJSON(content, simplifyVector = FALSE)
 }
 
-check_for_json <- function(resp) {
+check_for_json <- function(resp, call = caller_env()) {
   type <- httr::http_type(resp)
   if (grepl("^application/json", type)) {
     return(invisible(resp))
@@ -117,6 +117,7 @@ check_for_json <- function(resp) {
       ),
       "*" = obfuscate(content, first = 197, last = 0)
     ),
+    call = call,
     resp = resp
   )
 }
@@ -124,13 +125,14 @@ check_for_json <- function(resp) {
 # personal policy: a wrapper around a wrapper around cli_abort() should not
 # capture/pass an environment
 # if you really want cli styling, you have to pre-interpolate
-gargle_abort_request_failed <- function(message, resp) {
+gargle_abort_request_failed <- function(message, resp, call = caller_env()) {
   gargle_abort(
     message,
     class = c(
       "gargle_error_request_failed",
       glue("http_error_{httr::status_code(resp)}")
     ),
+    call = call,
     resp = redact_response(resp)
   )
 }
@@ -225,7 +227,8 @@ rpc_description <- function(rpc) {
 # canonical error codes and http mappings. This view of errors is ... what ...
 # APIs will ultimately converge on"
 # https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
-oops <- read.csv(text = trimws(c('
+oops <- read.csv(
+  text = trimws(c('
   HTTP,                   RPC,  Description
    200,                  "OK", "No error."
    400,    "INVALID_ARGUMENT", "Client specified an invalid argument. Check error message and error details for more information."
@@ -245,7 +248,8 @@ oops <- read.csv(text = trimws(c('
    503,         "UNAVAILABLE", "Service unavailable. Typically the server is down."
    504,   "DEADLINE_EXCEEDED", "Request deadline exceeded. This will happen only if the caller sets a deadline that is shorter than the method\'s default deadline (i.e. requested deadline is not enough for the server to process the request) and the request did not finish within the deadline."
                          ')),
-                 stringsAsFactors = FALSE, strip.white = TRUE)
+  stringsAsFactors = FALSE, strip.white = TRUE
+)
 
 # https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
 reveal_details <- function(details) {
@@ -272,7 +276,7 @@ reveal_detail <- function(x) {
       c(
         "*" = glue("Description: {x$description}"),
         " " = glue("URL: {x$url}")
-        )
+      )
     }
     bullets <- unlist(map(e[["links"]], f))
     c("Links", bullets)
@@ -283,8 +287,7 @@ reveal_detail <- function(x) {
     bulletize(glue_data(as.list(e), "{names(e)}: {e}"), n_show = 10)
   }
 
-  switch(
-    type,
+  switch(type,
     "google.rpc.BadRequest" = rpc_bad_request(x),
     "google.rpc.Help"       = rpc_help(x),
     "google.rpc.ErrorInfo"  = rpc_error_info(x),

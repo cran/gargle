@@ -118,7 +118,7 @@ knitr::opts_chunk$set(
 #  drive_auth(cache = ".secrets", email = "jenny@example.com")
 #  
 #  # now use googledrive with no need for explicit auth
-#  drive_auth(n_max = 5)
+#  drive_find(n_max = 5)
 
 ## -----------------------------------------------------------------------------
 #  options(gargle_verbosity = "debug")

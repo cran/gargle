@@ -5,7 +5,7 @@
 #' @inheritParams token_fetch
 #' @param service_account Name of the GCE service account to use.
 #'
-#' @seealso <https://cloud.google.com/compute/docs/storing-retrieving-metadata>
+#' @seealso <https://cloud.google.com/compute/docs/metadata/overview>
 #'
 #' @return A [GceToken()] or `NULL`.
 #' @family credential functions
@@ -17,18 +17,7 @@
 credentials_gce <- function(scopes = "https://www.googleapis.com/auth/cloud-platform",
                             service_account = "default", ...) {
   gargle_debug("trying {.fun credentials_gce}")
-  if (!detect_gce() || is.null(scopes)) {
-    return(NULL)
-  }
-  instance_scopes <- get_instance_scopes(service_account = service_account)
-  # We add a special case for the cloud-platform -> bigquery scope implication.
-  if ("https://www.googleapis.com/auth/cloud-platform" %in% instance_scopes) {
-    instance_scopes <- c(
-      "https://www.googleapis.com/auth/bigquery",
-      instance_scopes
-    )
-  }
-  if (!all(scopes %in% instance_scopes)) {
+  if (!detect_gce()) {
     return(NULL)
   }
 
@@ -49,7 +38,7 @@ credentials_gce <- function(scopes = "https://www.googleapis.com/auth/cloud-plat
   )
   token$refresh()
   if (is.null(token$credentials$access_token) ||
-      !nzchar(token$credentials$access_token)) {
+    !nzchar(token$credentials$access_token)) {
     NULL
   } else {
     token
@@ -115,11 +104,14 @@ gce_metadata_request <- function(path, stop_on_error = TRUE) {
   }
   url <- paste0(root_url, "computeMetadata/v1/", path)
   timeout <- getOption("gargle.gce.timeout", default = 0.8)
-  response <- try({
-    httr::with_config(httr::timeout(timeout), {
-      httr::GET(url, httr::add_headers("Metadata-Flavor" = "Google"))
-    })
-  }, silent = TRUE)
+  response <- try(
+    {
+      httr::with_config(httr::timeout(timeout), {
+        httr::GET(url, httr::add_headers("Metadata-Flavor" = "Google"))
+      })
+    },
+    silent = TRUE
+  )
 
   if (stop_on_error) {
     if (inherits(response, "try-error")) {
@@ -149,13 +141,6 @@ list_service_accounts <- function() {
   accounts <- gce_metadata_request("instance/service-accounts")
   ct <- httr::content(accounts, as = "text", encoding = "UTF-8")
   strsplit(ct, split = "/\n", fixed = TRUE)[[1]]
-}
-
-get_instance_scopes <- function(service_account) {
-  path <- glue("instance/service-accounts/{service_account}/scopes")
-  scopes <- gce_metadata_request(path)
-  ct <- httr::content(scopes, as = "text", encoding = "UTF-8")
-  strsplit(ct, split = "\n", fixed = TRUE)[[1]]
 }
 
 # TODO: why isn't scopes used here at all?
