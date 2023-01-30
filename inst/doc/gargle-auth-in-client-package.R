@@ -43,17 +43,19 @@ knitr::opts_chunk$set(
 ## ---- eval = FALSE------------------------------------------------------------
 #  library(googledrive)
 #  
-#  google_app <- httr::oauth_app(
-#    appname = "acme-corp",
-#    key     = "123456789.apps.googleusercontent.com",
-#    secret  = "abcdefghijklmnopqrstuvwxyz"
+#  google_client <- gargle::gargle_oauth_client_from_json(
+#    path = "/path/to/the/JSON/that/was/downloaded/from/gcp/console.json",
+#    name = "acme-corp-google-client"
 #  )
-#  drive_auth_configure(app = google_app)
+#  drive_auth_configure(app = google_client)
 #  
 #  drive_oauth_app()
-#  #> <oauth_app> acme-corp
-#  #>   key:    123456789.apps.googleusercontent.com
-#  #>   secret: <hidden>
+#  #> <gargle_oauth_client>
+#  #> name: acme-corp-google-client
+#  #> id: 123456789.apps.googleusercontent.com
+#  #> secret: <REDACTED>
+#  #> type: installed
+#  #> redirect_uris: http://localhost
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  library(googledrive)

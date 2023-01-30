@@ -11,12 +11,20 @@ library(gargle)
 #  token_fetch(scopes, ...)
 
 ## -----------------------------------------------------------------------------
-names(cred_funs_list())
+writeLines(names(cred_funs_list()))
+
+## ---- eval = FALSE------------------------------------------------------------
+#  token_fetch(token = <TOKEN2.0>)
+#  
+#  credentials_byo_oauth2(
+#    token = <TOKEN2.0>
+#  )
 
 ## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>, path = "/path/to/your/service-account.json")
 #  
-#  # leads to this call:
+#  # credentials_byo_oauth2() fails because no `token`,
+#  # which leads to this call:
 #  credentials_service_account(
 #    scopes = <SCOPES>,
 #    path = "/path/to/your/service-account.json"
@@ -25,7 +33,10 @@ names(cred_funs_list())
 ## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>, path = "/path/to/your/external-account.json")
 #  
-#  # leads to this call:
+#  # credentials_byo_oauth2() fails because no `token`,
+#  # credentials_service_account() fails because the JSON provided via
+#  #   `path` is not of type "service_account",
+#  # which leads to this call:
 #  credentials_external_account(
 #    scopes = <SCOPES>,
 #    path = "/path/to/your/external-account.json"
@@ -34,7 +45,9 @@ names(cred_funs_list())
 ## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>)
 #  
+#  # credentials_byo_oauth2() fails because no `token`,
 #  # credentials_service_account() fails because no `path`,
+#  # credentials_external_account() fails because no `path`,
 #  # which leads to this call:
 #  credentials_app_default(
 #    scopes = <SCOPES>
@@ -57,7 +70,9 @@ names(cred_funs_list())
 #  # or perhaps
 #  token_fetch(scopes = <SCOPES>, service_account = <SERVICE_ACCOUNT>)
 #  
+#  # credentials_byo_oauth2() fails because no `token`,
 #  # credentials_service_account() fails because no `path`,
+#  # credentials_external_account() fails because no `path`,
 #  # credentials_app_default() fails because no ADC found,
 #  # which leads to one of these calls:
 #  credentials_gce(
@@ -71,23 +86,13 @@ names(cred_funs_list())
 #  )
 
 ## ---- eval = FALSE------------------------------------------------------------
-#  token_fetch(token = <TOKEN2.0>)
-#  
-#  # credentials_service_account() fails because no `path`,
-#  # credentials_app_default() fails because no ADC found,
-#  # credentials_gce() fails because not on GCE,
-#  # which leads to this call:
-#  credentials_byo_oauth2(
-#    token = <TOKEN2.0>
-#  )
-
-## ---- eval = FALSE------------------------------------------------------------
 #  token_fetch(scopes = <SCOPES>)
 #  
+#  # credentials_byo_oauth2() fails because no `token`,
 #  # credentials_service_account() fails because no `path`,
+#  # credentials_external_account() fails because no `path`,
 #  # credentials_app_default() fails because no ADC found,
 #  # credentials_gce() fails because not on GCE,
-#  # credentials_byo_oauth2() fails because no `token`,
 #  # which leads to this call:
 #  credentials_user_oauth2(
 #    scopes = <SCOPES>,

@@ -27,6 +27,18 @@ knitr::opts_chunk$set(
 ## -----------------------------------------------------------------------------
 #  options(gargle_verbosity = "debug")
 
+## ----eval = FALSE-------------------------------------------------------------
+#  options(gargle.gce.use_ip = TRUE)
+#  gargle::credentials_gce("my-service-key@my-project.iam.gserviceaccount.com")
+#  # ... do authenticated stuff...
+
+## ---- eval = FALSE------------------------------------------------------------
+#  library(PKG)
+#  
+#  options(gargle.gce.use_ip = TRUE)
+#  PKG_auth(service_account = "my-service-key@my-project.iam.gserviceaccount.com")
+#  # ... do authenticated stuff...
+
 ## -----------------------------------------------------------------------------
 #  library(googledrive)
 #  

@@ -15,11 +15,3 @@ knitr::opts_chunk$set(
 ## ----eval = FALSE-------------------------------------------------------------
 #  options(gargle_oob_default = TRUE)
 
-## ---- eval = FALSE------------------------------------------------------------
-#  drive_auth <- function(email = gargle::gargle_oauth_email(),
-#                         path = NULL,
-#                         scopes = "https://www.googleapis.com/auth/drive",
-#                         cache = gargle::gargle_oauth_cache(),
-#                         use_oob = gargle::gargle_oob_default(),
-#                         token = NULL) {...}
-

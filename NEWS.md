@@ -1,3 +1,93 @@
+# gargle 1.3.0
+
+## (Partial) deprecation out-of-band (OOB) auth flow
+
+On February 16, 2022, Google announced the gradual deprecation of the out-of-band (OOB) OAuth flow.
+OOB **still works** if the OAuth client is associated with a GCP project that is in testing mode and this is not going away.
+But OOB is no longer supported for projects in production mode.
+To be more accurate, some production-mode projects have gotten an extension to permit the use of OOB auth for a bit longer, but that's just a temporary reprieve.
+
+The typical user who will (eventually) be impacted is:
+
+* Using R via RStudio Server, Posit Workbench, or Posit Cloud.
+* Using tidyverse packages such as googledrive, googlesheets4, or bigrquery.
+* Relying on the built-in OAuth client. Importantly, this client is associated
+  with a GCP project that is in production mode.
+
+The phased deprecation of OOB is nearly complete and we expect conventional OOB to stop working with the built-in tidyverse OAuth client on February 1, 2023, at the latest.
+
+**In preparation for this, gargle has gained support for a new flow, which we call pseudo-OOB (in contrast to conventional OOB)**.
+The pseudo-OOB flow is triggered when `use_oob = TRUE` (an existing convention in gargle and gargle-using packages) and the configured OAuth client is of "Web application" type.
+The gargle/googledrive/googlesheets4/bigrquery packages should now default to a "Web application" client on RStudio Server, Posit Workbench and Posit Cloud, leading the user through the pseudo-OOB flow.
+Other than needing to re-auth once, affected users should still find that things "just work".
+
+Read the `vignette("auth-from-web")` for more.
+
+## gargle-specific notion of OAuth client
+
+`gargle_oauth_client()` is a new constructor for an S3 class by the same name.
+There are two motivations:
+  - To adjust to Google's deprecation of conventional OOB and to support
+    gargle's new pseudo-OOB flow, it is helpful for gargle to know whether an
+    OAuth client ID is of type "Web application" or "Desktop app". That means we
+    need a Google- and gargle-specific notion of an OAuth client, so we can
+    introduce a `type` field.
+  - A transition from httr and httr2 is on the horizon, so it makes sense to
+    look more toward `httr2:oauth_client()` than to `httr::oauth_app()`.
+    gargle's vocabulary is generally shifting towards "client" and away from
+    "app".
+  
+`oauth_app_from_json()` has therefore been (soft) deprecated, in favor of a new function `gargle_oauth_client_from_json()`, which is the preferred way to instantiate an OAuth client, since the downloaded JSON conveys the client type and redirect URI(s).
+As a bridging measure, `gargle_oauth_client` currently inherits from httr's `oauth_app`, but this probably won't be true in the long-term.
+
+`gargle_client(type =)` replaces `gargle_app()`.
+
+## Google Compute Engine and Google Kubernetes Engine
+
+`credentials_gce()` no longer asks the user about initiating an OAuth cache, which is not relevant to that flow (#221).
+
+`gce_instance_service_accounts()` is a newly exported utility that exposes the service accounts available from the metadata server for the current instance (#234).
+
+The global option `"gargle.gce.timeout"` is newly documented in `credentials_gce()`.
+This controls the timeout, in seconds, for requests to the metadata server.
+The default value (or strategy) for setting this should often suffice, but the option exists for those with an empirical need to increase the timeout (#186, #195).
+
+`vignette("non-interactive-auth")` has a new section "Workload Identity on Google Kubernetes Engine (GKE)" that explains how gargle supports the use of workload identity for applications running on GKE. This is the recommended method of auth in R code running on GKE that needs to access other Google Cloud services, such as the BigQuery API (#197, #223, @MarkEdmondson1234).
+
+## Credential function registry
+
+It's gotten a bit easier to work with the credential registry.
+The primary motivation is that, for example, on Google Compute Engine, you might
+actually want to suppress auth with the default service account and auth as a
+normal user instead.
+This is especially likely to come up with gmailr / the Gmail API.
+
+* The credential-fetcher `credentials_byo_oauth2()` has been moved to the very
+  beginning of the default registry. The logic is that a user who has specified
+  a non-`NULL` value of `token` must mean business and does not want automagic
+  auth methods like ADC or GCE to be tried before using their `token`
+  (#187, #225).
+
+* The `...` in `cred_funs_all()` are now
+  [dynamic dots](https://rlang.r-lib.org/reference/dyn-dots.html) (#224).
+
+* Every registered credential function must have a unique name now.
+  This is newly enforced by `cred_funs_add()` and `cred_funs_set()` (#224).
+  
+* `cred_funs_list_default()` is a new function that returns gargle's default
+  list of credential functions (#226).
+  
+* `cred_funs_add(cred_fun = NULL)` is now available to remove a credential
+  function from the registry (#224).
+  
+* `with_cred_funs()` and `local_cred_funs()` are new helpers for making narrowly
+  scoped changes to the registry (#226).
+  
+* The `ls` argument of `cred_funs_set()` has been renamed to `funs` (#226).
+  
+* In general, credential registry functions now return the current registry,
+  invisibly (#224).
+
 # gargle 1.2.1
 
 * Help files below `man/` have been re-generated, so that they give rise to valid HTML5. (This is the impetus for this release, to keep the package safely on CRAN.)
