@@ -55,6 +55,15 @@ gargle2.0_token <- function(email = gargle_oauth_email(),
     params$oob_value <- select_pseudo_oob_value(app$redirect_uris)
   }
 
+  # this allows pseudo-oob auth to work on colab, because:
+  # 1) gargle's attempts to communicate with the user route through readline()
+  #    which is shimmed in Jupyter (and therefore Colab)
+  # 2) httr >= 1.4.5 honors the "rlang_interactive" option when deciding whether
+  #   it will try the oauth dance
+  if (is_google_colab()) {
+    withr::local_options(rlang_interactive = TRUE)
+  }
+
   if (!identical(client_type, "web")) {
     # don't use the new client type!
     # specifically, for an installed / desktop app client, we want to use httr's
@@ -181,7 +190,7 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
     x <- list(
       oauth_endpoint = "google",
       app            = self$app$appname,
-      email          = cli_this("{.email {self$email}}"),
+      email          = cli::format_inline("{.email {self$email}}"),
       scopes         = commapse(base_scope(self$params$scope)),
       credentials    = commapse(names(self$credentials))
     )
@@ -250,7 +259,7 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
   init_credentials = function() {
     gargle_debug("initiating new token")
     if (is_interactive()) {
-      if (!isTRUE(self$params$use_oob) && !is_rstudio_server()) {
+      if (!isTRUE(self$params$use_oob) && !is_hosted_session()) {
         encourage_httpuv()
       }
       self$credentials <- init_oauth2.0(
@@ -273,14 +282,13 @@ encourage_httpuv <- function() {
   if (!is_interactive() || isTRUE(is_installed("httpuv"))) {
     return(invisible())
   }
-  local_gargle_verbosity("info")
-  gargle_info(c(
-    "The {.pkg httpuv} package enables a nicer Google auth experience, \\
-     in many cases.",
-    "It doesn't seem to be installed.",
-    "Would you like to install it now?"
-  ))
-  if (utils::menu(c("Yes", "No")) == 1) {
+  choice <- cli_menu(
+   "The {.pkg httpuv} package enables a nicer Google auth experience, in many \\
+    cases, but it isn't installed.",
+    "Would you like to install it now?",
+    choices = c("Yes", "No")
+  )
+  if (choice == 1) {
     utils::install.packages("httpuv")
   }
   invisible()

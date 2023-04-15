@@ -4,7 +4,7 @@ gargle_theme <- function() {
     # make the default bullet "regular" color, instead of explicitly colored
     # mostly motivated by consistency with googledrive, where the cumulative
     # use of color made me want to do this
-    ".memo .memo-item-*" = list(
+    ".bullets .bullet-*" = list(
       "text-exdent" = 2,
       before = function(x) paste0(cli::symbol$bullet, " ")
     )
@@ -50,16 +50,17 @@ gargle_verbosity <- function() {
   # help people using the previous option
   if (is.null(gv)) {
     gq <- getOption("gargle_quiet")
-    if (is_false(gq)) {
+    if (isFALSE(gq)) {
       options(gargle_verbosity = "debug")
-      with_gargle_verbosity(
-        "debug",
-        gargle_debug(c(
-          "!" = "Option {.val gargle_quiet} is deprecated in favor of \\
-                 {.val gargle_verbosity}",
-          "i" = "Instead of: {.code options(gargle_quiet = FALSE)}",
-          " " = 'Now do: {.code options(gargle_verbosity = "debug")}'
-        ))
+      lifecycle::deprecate_warn(
+        when = "1.1.0",
+        what = I('The "gargle_quiet" option'),
+        with = I('the "gargle_verbosity" option'),
+        details = c(
+          "x" = "Don't do this: `options(gargle_quiet = FALSE)`",
+          "v" = 'Do this instead: `options(gargle_verbosity = "debug")`'
+        ),
+        always = TRUE
       )
     }
   }
@@ -67,8 +68,9 @@ gargle_verbosity <- function() {
 
   vals <- c("debug", "info", "silent")
   if (!is_string(gv) || !(gv %in% vals)) {
-    # ideally this would collapse with 'or' not 'and' but I'm going with it
-    gargle_abort('Option "gargle_verbosity" must be one of: {.field {vals}}')
+    gargle_abort(
+      'Option "gargle_verbosity" must be one of: {.or {.field {vals}}}.'
+    )
   }
   gv
 }
@@ -100,18 +102,6 @@ gargle_info <- function(text, .envir = parent.frame()) {
     cli::cli_div(theme = gargle_theme())
     cli::cli_bullets(text, .envir = .envir)
   }
-}
-
-# inspired by
-# https://github.com/rundel/ghclass/blob/6ed836c0e3750b4bfd1386c21b28b91fd7e24b4a/R/util_cli.R#L1-L7
-# more discussion at
-# https://github.com/r-lib/cli/issues/222
-cli_this <- function(..., .envir = parent.frame()) {
-  txt <- cli::cli_format_method(cli::cli_text(..., .envir = .envir))
-  # @rundel does this to undo wrapping done by cli_format_method()
-  # I haven't had this need yet
-  # paste(txt, collapse = " ")
-  txt
 }
 
 commapse <- function(...) paste0(..., collapse = ", ")
@@ -171,29 +161,6 @@ gargle_abort <- function(message, ...,
 gargle_warn <- function(message, ..., class = NULL, .envir = parent.frame()) {
   cli::cli_div(theme = gargle_theme())
   cli::cli_warn(message, .envir = .envir, ...)
-}
-
-gargle_abort_bad_class <- function(object,
-                                   expected_class,
-                                   call = caller_env()) {
-  nm <- as_name(ensym(object))
-  actual_class <- class(object)
-  expected <- glue_collapse(
-    gargle_map_cli(expected_class, template = "{.cls <<x>>}"),
-    sep = ", ", last = " or "
-  )
-  msg <- glue("
-    {.arg {nm}} must be <<expected>>, not of class {.cls {actual_class}}.",
-    .open = "<<", .close = ">>"
-  )
-  gargle_abort(
-    msg,
-    class = "gargle_error_bad_class",
-    call = call,
-    object_name = nm,
-    actual_class = actual_class,
-    expected_class = expected_class
-  )
 }
 
 gargle_abort_bad_params <- function(names,
@@ -270,4 +237,81 @@ compute_n_show <- function(n, n_show_nominal = 5, n_fudge = 2) {
   } else {
     n
   }
+}
+
+# menu(), but based on readline() + cli and mockable ---------------------------
+# https://github.com/r-lib/cli/issues/228
+# https://github.com/rstudio/rsconnect/blob/main/R/utils-cli.R
+
+cli_menu <- function(header,
+                     prompt,
+                     choices,
+                     not_interactive = choices,
+                     exit = integer(),
+                     .envir = caller_env(),
+                     error_call = caller_env()) {
+  if (!is_interactive()) {
+    cli::cli_abort(
+      c(header, not_interactive),
+      .envir = .envir,
+      call = error_call
+    )
+  }
+
+  choices <- paste0(cli::style_bold(seq_along(choices)), ": ", choices)
+  cli::cli_inform(
+    c(header, prompt, choices),
+    .envir = .envir
+  )
+
+  repeat {
+    selected <- cli_readline("Selection: ")
+    if (selected %in% c("0", seq_along(choices))) {
+      break
+    }
+    cli::cli_inform(
+      "Enter a number between 1 and {length(choices)}, or enter 0 to exit."
+    )
+  }
+
+  selected <- as.integer(selected)
+  if (selected %in% c(0, exit)) {
+    if (is_testing()) {
+      cli::cli_abort("Exiting...", call = NULL)
+    } else {
+      cli::cli_alert_danger("Exiting...")
+      # simulate user pressing Ctrl + C
+      invokeRestart("abort")
+    }
+  }
+
+  selected
+}
+
+cli_readline <- function(prompt) {
+  local_input <- getOption("cli_input", character())
+
+  # not convinced that we need to plan for multiple mocked inputs, but leaving
+  # this feature in for now
+  if (length(local_input) > 0) {
+    input <- local_input[[1]]
+    cli::cli_inform(paste0(prompt, input))
+    options(cli_input = local_input[-1])
+    input
+  } else {
+    readline(prompt)
+  }
+}
+
+local_user_input <- function(x, env = caller_env()) {
+  withr::local_options(
+    rlang_interactive = TRUE,
+    # trailing 0 prevents infinite loop if x only contains invalid choices
+    cli_input = c(x, "0"),
+    .local_envir = env
+  )
+}
+
+is_testing <- function() {
+  identical(Sys.getenv("TESTTHAT"), "true")
 }

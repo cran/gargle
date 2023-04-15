@@ -2,7 +2,7 @@
 
 # secret_pw_name("gargle") --> "GARGLE_PASSWORD"
 secret_pw_name <- function(package) {
-  paste0(toupper(package), "_PASSWORD")
+  paste0(toupper(gsub("[.]", "_", package)), "_PASSWORD")
 }
 
 # secret_pw_gen() --> "9AkKLa50wf1zHNCnHiQWeFLDoch9MYJHmPNnIVYZgSUt0Emwgi"
@@ -44,7 +44,7 @@ secret_write <- function(package, name, input) {
   if (is.character(input)) {
     input <- readBin(input, "raw", file.size(input))
   } else if (!is.raw(input)) {
-    gargle_abort_bad_class(input, c("character", "raw"))
+    stop_input_type(input, what = c("character", "raw"))
   }
 
   destdir <- fs::path("inst", "secret")

@@ -16,7 +16,7 @@ cache_establish <- function(cache = NULL) {
   }
   # the inherits() call is so we accept 'fs_path'
   if (!is.logical(cache) && !is.character(cache) && !inherits(cache, "character")) {
-    gargle_abort_bad_class(cache, c("logical", "character"))
+    stop_input_type(cache, what = c("logical", "character"))
   }
 
   # takes care of the re-location of the default cache, implemented in v1.1.0
@@ -62,11 +62,13 @@ cache_allowed <- function(path) {
     return(FALSE)
   }
 
-  local_gargle_verbosity("info")
-  gargle_info("
-    Is it OK to cache OAuth access credentials in the folder \\
-    {.path {path}} between R sessions?")
-  utils::menu(c("Yes", "No")) == 1
+  choice <- cli_menu(
+    header = character(),
+    prompt = "Is it OK to cache OAuth access credentials in the folder \\
+              {.path {path}} between R sessions?",
+    choices = c("Yes", "No")
+  )
+  choice == 1
 }
 
 cache_create <- function(path) {
@@ -282,7 +284,7 @@ token_match <- function(candidate, existing, package = "gargle") {
       emails <- extract_email(existing)
       emails_fmt <- lapply(
         emails,
-        function(x) cli_this("{.email {x}}")
+        function(x) cli::format_inline("{.email {x}}")
       )
       msg <- c(
         "i" = "Suitable tokens found in the cache, associated with these \\
@@ -314,19 +316,20 @@ token_match <- function(candidate, existing, package = "gargle") {
   }
 
   # we need user to OK our discovery or pick from multiple emails
-  emails <- extract_email(existing)
-  local_gargle_verbosity("info")
-  gargle_info(c(
+  choices <- c(
+    "Send me to the browser for a new auth process.",
+    extract_email(existing)
+  )
+  choice <- cli_menu(
     "The {.pkg {package}} package is requesting access to your Google account.",
-    "Select a pre-authorised account or enter '0' to obtain a new token.",
-    "Press Esc/Ctrl + C to cancel."
-  ))
-  choice <- utils::menu(emails)
+    "Enter '1' to start a new auth process or select a pre-authorized account.",
+    choices = choices
+  )
 
-  if (choice == 0) {
+  if (choice == 1) {
     NULL
   } else {
-    existing[[choice]]
+    existing[[choice - 1]]
   }
 }
 

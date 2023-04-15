@@ -4,6 +4,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
+## ---- echo = FALSE, out.width = "400px"---------------------------------------
+knitr::include_graphics("invalid_request.png")
+
 ## ----eval = FALSE-------------------------------------------------------------
 #  library(googledrive)
 #  
@@ -14,4 +17,7 @@ knitr::opts_chunk$set(
 
 ## ----eval = FALSE-------------------------------------------------------------
 #  options(gargle_oob_default = TRUE)
+
+## ----eval = FALSE-------------------------------------------------------------
+#  options(gargle_oauth_client_type = "web")
 

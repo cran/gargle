@@ -1,5 +1,5 @@
 empty_string <- function(x) {
-  stopifnot(is.character(x))
+  check_string(x)
   !nzchar(x)
 }
 
@@ -7,23 +7,31 @@ is_windows <- function() {
   tolower(Sys.info()[["sysname"]]) == "windows"
 }
 
-file_is_empty <- function(path) {
-  stopifnot(is_string(path))
-  file.info(path)$size == 0
-}
-
-isFALSE <- function(x) identical(x, FALSE)
-
 is.oauth_app <- function(x) inherits(x, "oauth_app")
 
 is.oauth_endpoint <- function(x) inherits(x, "oauth_endpoint")
 
 is_rstudio_server <- function() {
-  if (rstudioapi::hasFun("versionInfo")) {
-    rstudioapi::versionInfo()$mode == "server"
-  } else {
-    FALSE
-  }
+  Sys.getenv("RSTUDIO") == "1" &&
+    Sys.getenv("RSTUDIO_PROGRAM_MODE") == "server"
+}
+
+is_google_colab <- function() {
+  # idea from https://stackoverflow.com/a/74930276
+  # 2023-02-21 I created new notebook with
+  # https://colab.research.google.com/#create=true&language=r
+  # and I see:
+  # Sys.getenv("COLAB_RELEASE_TAG") returns 'release-colab-20230216-060056-RC01'
+  #
+  # https://github.com/r-lib/gargle/issues/140#issuecomment-1439111627
+  # via @craigcitro, the existence of this directory is another indicator:
+  # /var/colab/hostname
+  nzchar(Sys.getenv("COLAB_RELEASE_TAG"))
+}
+
+is_hosted_session <- function() {
+  is_rstudio_server() ||
+    is_google_colab()
 }
 
 add_line <- function(path, line) {
