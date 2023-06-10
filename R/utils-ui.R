@@ -79,7 +79,7 @@ gargle_verbosity <- function() {
 #' @export
 #' @param level Verbosity level: "debug" > "info" > "silent"
 #' @param env The environment to use for scoping
-local_gargle_verbosity <- function(level, env = parent.frame()) {
+local_gargle_verbosity <- function(level, env = caller_env()) {
   withr::local_options(list(gargle_verbosity = level), .local_envir = env)
 }
 
@@ -90,14 +90,14 @@ with_gargle_verbosity <- function(level, code) {
   withr::with_options(list(gargle_verbosity = level), code = code)
 }
 
-gargle_debug <- function(text, .envir = parent.frame()) {
+gargle_debug <- function(text, .envir = caller_env()) {
   if (gargle_verbosity() == "debug") {
     cli::cli_div(theme = gargle_theme())
     cli::cli_bullets(text, .envir = .envir)
   }
 }
 
-gargle_info <- function(text, .envir = parent.frame()) {
+gargle_info <- function(text, .envir = caller_env()) {
   if (gargle_verbosity() %in% c("debug", "info")) {
     cli::cli_div(theme = gargle_theme())
     cli::cli_bullets(text, .envir = .envir)
@@ -142,7 +142,7 @@ NULL
 
 gargle_abort <- function(message, ...,
                          class = NULL,
-                         .envir = parent.frame(),
+                         .envir = caller_env(),
                          call = caller_env()) {
   cli::cli_div(theme = gargle_theme())
   cli::cli_abort(
@@ -158,7 +158,7 @@ gargle_abort <- function(message, ...,
 # throwing any warnings, however we currently do re: token refresh
 # so this wrapper makes the messaging more humane
 # I am declining to add a class, e.g. gargle_warning
-gargle_warn <- function(message, ..., class = NULL, .envir = parent.frame()) {
+gargle_warn <- function(message, ..., class = NULL, .envir = caller_env()) {
   cli::cli_div(theme = gargle_theme())
   cli::cli_warn(message, .envir = .envir, ...)
 }
@@ -314,4 +314,21 @@ local_user_input <- function(x, env = caller_env()) {
 
 is_testing <- function() {
   identical(Sys.getenv("TESTTHAT"), "true")
+}
+
+# taken from lifecycle
+# https://github.com/r-lib/lifecycle/blob/9417eca8f5091f95b4569fb6c388e4394e2b2157/R/utils.R#L30
+pkg_url_bug <- function(pkg) {
+  # First check that package is installed, e.g. in case of
+  # runtime-only namespace created by pkgload
+  if (nzchar(system.file(package = pkg))) {
+    url <- utils::packageDescription(pkg)$BugReports
+
+    # `url` can be NULL if not part of the description
+    if (is_string(url) && grepl("^https://", url)) {
+      return(url)
+    }
+  }
+
+  NULL
 }

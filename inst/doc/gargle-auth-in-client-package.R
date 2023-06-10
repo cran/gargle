@@ -12,13 +12,13 @@ knitr::opts_chunk$set(
 #                         cache = gargle::gargle_oauth_cache(),
 #                         use_oob = gargle::gargle_oob_default(),
 #                         token = NULL) {
-#    if (!missing(email) && !missing(path)) {
-#      # warn, because this is user error 99% of the time
-#    }
+#    # this catches a common error, where the user passes JSON for an OAuth client
+#    # to the `path` argument, which only expects a service account token
+#    gargle::check_is_service_account(path, hint = "drive_auth_configure")
 #  
 #    cred <- gargle::token_fetch(
 #      scopes = scopes,
-#      app = drive_oauth_client() %||% <BUILT_IN_DEFAULT_CLIENT>,
+#      client = drive_oauth_client() %||% <BUILT_IN_DEFAULT_CLIENT>,
 #      email = email,
 #      path = path,
 #      package = "googledrive",
@@ -27,7 +27,7 @@ knitr::opts_chunk$set(
 #      token = token
 #    )
 #    if (!inherits(cred, "Token2.0")) {
-#      # error
+#      # throw an informative error here
 #    }
 #    .auth$set_cred(cred)
 #    .auth$set_auth_active(TRUE)

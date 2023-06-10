@@ -2,31 +2,51 @@
 #'
 #' Constructor function for objects of class [Gargle2.0].
 #'
-#' @param email Optional. Allows user to target a specific Google identity. If
-#'   specified, this is used for token lookup, i.e. to determine if a suitable
-#'   token is already available in the cache. If no such token is found, `email`
-#'   is used to pre-select the targetted Google identity in the OAuth chooser.
-#'   Note, however, that the email associated with a token when it's cached is
-#'   always determined from the token itself, never from this argument. Use `NA`
-#'   or `FALSE` to match nothing and force the OAuth dance in the browser. Use
-#'   `TRUE` to allow email auto-discovery, if exactly one matching token is
-#'   found in the cache. Specify just the domain with a glob pattern, e.g.
-#'   `"*@example.com"`, to create code that "just works" for both
-#'   `alice@example.com` and `bob@example.com`. Defaults to the option named
-#'   "gargle_oauth_email", retrieved by [gargle::gargle_oauth_email()].
-#' @param app A Google OAuth client, preferably constructed via
+#' @param email Optional. If specified, `email` can take several different
+#'   forms:
+#' * `"jane@gmail.com"`, i.e. an actual email address. This allows the user to
+#' target a specific Google identity. If specified, this is used for token
+#' lookup, i.e. to determine if a suitable token is already available in the
+#' cache. If no such token is found, `email` is used to pre-select the targeted
+#' Google identity in the OAuth chooser. (Note, however, that the email
+#' associated with a token when it's cached is always determined from the token
+#' itself, never from this argument).
+#' * `"*@example.com"`, i.e. a domain-only glob pattern. This can be helpful if
+#' you need code that "just works" for both `alice@example.com` and
+#' `bob@example.com`.
+#' * `TRUE` means that you are approving email auto-discovery. If exactly one
+#'   matching token is found in the cache, it will be used.
+#' * `FALSE` or `NA` mean that you want to ignore the token cache and force a
+#' new OAuth dance in the browser.
+#'
+#' Defaults to the option named `"gargle_oauth_email"`, retrieved by
+#' [gargle::gargle_oauth_email()] (unless a wrapper package implements different
+#' default behavior).
+#' @param client A Google OAuth client, preferably constructed via
 #'   [gargle::gargle_oauth_client_from_json()], which returns an instance of
 #'   `gargle_oauth_client`. For backwards compatibility, for a limited time,
 #'   gargle will still accept an "OAuth app" created with [httr::oauth_app()].
 #' @param package Name of the package requesting a token. Used in messages.
 #' @param scope A character vector of scopes to request.
-#' @param use_oob Whether to prefer out-of-band authentication. Defaults to the
-#'   value returned by [gargle::gargle_oob_default()].
+#' @param use_oob Whether to use out-of-band authentication (or, perhaps, a
+#'   variant implemented by gargle and known as "pseudo-OOB") when first
+#'   acquiring the token. Defaults to the value returned by
+#'   [gargle::gargle_oob_default()]. Note that (pseudo-)OOB auth only affects
+#'   the initial OAuth dance. If we retrieve (and possibly refresh) a
+#'   cached token, `use_oob` has no effect.
+#'
+#'   If the OAuth client is provided implicitly by a wrapper package, its type
+#'   probably defaults to the value returned by
+#'   [gargle::gargle_oauth_client_type()]. You can take control of the client
+#'   type by setting `options(gargle_oauth_client_type = "web")` or
+#'   `options(gargle_oauth_client_type = "installed")`.
 #' @param cache Specifies the OAuth token cache. Defaults to the option named
 #'   `"gargle_oauth_cache"`, retrieved via [gargle::gargle_oauth_cache()].
 #' @inheritParams httr::oauth2.0_token
 #' @param ... Absorbs arguments intended for use by other credential functions.
 #'   Not used.
+#' @param app `r lifecycle::badge('deprecated')` Replaced by the `client`
+#'   argument.
 #' @return An object of class [Gargle2.0], either new or loaded from the cache.
 #' @export
 #' @examples
@@ -34,7 +54,7 @@
 #' gargle2.0_token()
 #' }
 gargle2.0_token <- function(email = gargle_oauth_email(),
-                            app = gargle_client(),
+                            client = gargle_client(),
                             package = "gargle",
                             ## params start
                             scope = NULL,
@@ -42,20 +62,32 @@ gargle2.0_token <- function(email = gargle_oauth_email(),
                             ## params end
                             credentials = NULL,
                             cache = if (is.null(credentials)) gargle_oauth_cache() else FALSE,
-                            ...) {
+                            ...,
+                            app = deprecated()) {
+  if (lifecycle::is_present(app)) {
+    lifecycle::deprecate_soft(
+      "1.5.0",
+      "gargle2.0_token(app)",
+      "gargle2.0_token(client)"
+    )
+    client <- app
+  }
+
   params <- list(
     scope = scope,
     use_oob = use_oob,
     as_header = TRUE
   )
 
-  # pseudo-oob flow
-  client_type <- if (inherits(app, "gargle_oauth_client")) app$type else NA
+  # pseudo-OOB flow
+  client_type <- if (inherits(app, "gargle_oauth_client")) client$type else NA
   if (use_oob && identical(client_type, "web")) {
-    params$oob_value <- select_pseudo_oob_value(app$redirect_uris)
+    params$oob_value <- select_pseudo_oob_value(client$redirect_uris)
   }
+  # params$oob_value is deliberately left unspecified for conventional OOB,
+  # with the intent of falling back to urn:ietf:wg:oauth:2.0:oob
 
-  # this allows pseudo-oob auth to work on colab, because:
+  # this allows pseudo-OOB auth to work on colab, because:
   # 1) gargle's attempts to communicate with the user route through readline()
   #    which is shimmed in Jupyter (and therefore Colab)
   # 2) httr >= 1.4.5 honors the "rlang_interactive" option when deciding whether
@@ -64,21 +96,9 @@ gargle2.0_token <- function(email = gargle_oauth_email(),
     withr::local_options(rlang_interactive = TRUE)
   }
 
-  if (!identical(client_type, "web")) {
-    # don't use the new client type!
-    # specifically, for an installed / desktop app client, we want to use httr's
-    # default logic for the redirect URI (as opposed to any redirect URIs we
-    # might have read out of a JSON file)
-    app <- httr::oauth_app(
-      appname = app$appname,
-      key = app$key,
-      secret = app$secret
-    )
-  }
-
   Gargle2.0$new(
     email = email,
-    app = app,
+    client = client,
     package = package,
     params = params,
     credentials = credentials,
@@ -106,8 +126,21 @@ gargle2.0_token <- function(email = gargle_oauth_email(),
 #' directory of such files. In contrast, `Token2.0` tokens are cached as
 #' components of a list, which is typically serialized to `./.httr-oauth`.
 #'
-#' @param email Optional email address. See [gargle2.0_token()] for full details.
+
+#' @param email Optional email address. See [gargle2.0_token()] for full
+#'   details.
+#' @param client An OAuth consumer application.
 #' @param package Name of the package requesting a token. Used in messages.
+#' @param credentials Exists largely for testing purposes.
+#' @param params A list of parameters for the internal function
+#'   `init_oauth2.0()`, which is a modified version of [httr::init_oauth2.0()].
+#'   gargle actively uses `scope` and `use_oob`, but does not use `user_params`,
+#'   `type`, `as_header` (hard-wired to `TRUE`), `use_basic_auth` (accept
+#'   default of `use_basic_auth = FALSE`), `config_init`, or
+#'   `client_credentials`.
+#' @param cache_path Specifies the OAuth token cache. Read more in
+#'   [gargle::gargle_oauth_cache()].
+#' @param app `r lifecycle::badge('deprecated')` Use `client` instead.
 #'
 #' @keywords internal
 #' @export
@@ -117,36 +150,41 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
   email = NULL,
   #' @field package Name of the package requesting a token. Used in messages.
   package = NULL,
+  #' @field client An OAuth client.
+  client = NULL,
   #' @description Create a Gargle2.0 token
-  #' @param app An OAuth consumer application.
-  #' @param credentials Exists largely for testing purposes.
-  #' @param params A list of parameters for the internal function
-  #'   `init_oauth2.0()`, which is a modified version of
-  #'   [httr::init_oauth2.0()]. gargle actively uses `scope` and `use_oob`, but
-  #'   does not use `user_params`, `type`, `as_header` (hard-wired to `TRUE`),
-  #'   `use_basic_auth` (accept default of `use_basic_auth = FALSE`),
-  #'   `config_init`, or `client_credentials`.
-  #' @param cache_path Specifies the OAuth token cache. Read more in
-  #'   [gargle::gargle_oauth_cache()].
   #' @return A Gargle2.0 token.
   initialize = function(email = gargle_oauth_email(),
-                        app = gargle_client(),
+                        client = gargle_client(),
                         package = "gargle",
                         credentials = NULL,
                         params = list(),
-                        cache_path = gargle_oauth_cache()) {
+                        cache_path = gargle_oauth_cache(),
+                        app = deprecated()) {
     gargle_debug("Gargle2.0 initialize")
+    # I'm using deprecate_warn() intentionally here. Most folks should be
+    # instantiating through gargle2.0_token() anyway, so anyone who sees this
+    # warning probably needs to see it.
+    if (lifecycle::is_present(app)) {
+      lifecycle::deprecate_warn(
+        "1.5.0",
+        "Gargle2.0$initialize(app)",
+        "Gargle2.0$initialize(client)"
+      )
+      client <- app
+    }
     stopifnot(
       is.null(email) || is_scalar_character(email) ||
         isTRUE(email) || isFALSE(email) || is_na(email),
-      is.oauth_app(app),
+      is.oauth_app(client),
       is_string(package),
       is.list(params)
     )
     if (identical(email, "")) {
-      gargle_abort("
-        {.arg email} must not be \"\" (the empty string).
-        Do you intend to consult an env var, but it's unset?")
+      gargle_abort(c(
+        "{.arg email} must not be \"\" (the empty string).",
+        "i" = "Do you intend to consult an env var, but it's unset?"
+      ))
     }
     if (isTRUE(email)) {
       email <- "*"
@@ -160,7 +198,10 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
 
     self$endpoint   <- gargle_oauth_endpoint()
     self$email      <- email
-    self$app        <- app
+    self$client     <- client
+    # for backwards compatibility and also because the parent class has $app;
+    # I can never remove it
+    self$app        <- client
     self$package    <- package
     params$scope    <- normalize_scopes(add_email_scope(params$scope))
     params$query_authorize_extra <- list(login_hint = login_hint)
@@ -189,7 +230,7 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
   format = function(...) {
     x <- list(
       oauth_endpoint = "google",
-      app            = self$app$appname,
+      client         = self$client$name,
       email          = cli::format_inline("{.email {self$email}}"),
       scopes         = commapse(base_scope(self$params$scope)),
       credentials    = commapse(names(self$credentials))
@@ -223,6 +264,12 @@ Gargle2.0 <- R6::R6Class("Gargle2.0", inherit = httr::Token2.0, list(
     if (is.null(self$cache_path) || is_na(self$email)) {
       return(FALSE)
     }
+
+    gargle_debug("email: {.email {self$email}}")
+    gargle_debug("oauth client name: {self$app$name}")
+    gargle_debug("oauth client name: {self$app$type}")
+    gargle_debug("oauth client id: {self$app$id}")
+    gargle_debug("scopes: {commapse(base_scope(self$params$scope))}")
 
     cached <- token_from_cache(self)
     if (is.null(cached)) {
@@ -294,10 +341,10 @@ encourage_httpuv <- function() {
   invisible()
 }
 
-# I want to encourage users to create an OAuth app (older httr-y language) or
-# client (newer httr2-y language) directly from downloaded JSON, using
-# gargle_oauth_client_from_json(). Sometimes there are multiple URIs and I think
-# we can usually figure out which one to use for the pseudo-oob flow.
+# I want to encourage users to create an OAuth client (newer httr2-y language)
+# directly from downloaded JSON, using gargle_oauth_client_from_json().
+# Sometimes there are multiple URIs and I think we can usually figure out which
+# one to use for the pseudo-OOB flow.
 select_pseudo_oob_value <- function(redirect_uris) {
   # https://developers.google.com/identity/protocols/oauth2/resources/oob-migration#inspect-your-application-code
   bad_values <- c(
@@ -322,8 +369,8 @@ select_pseudo_oob_value <- function(redirect_uris) {
 
   if (length(redirect_uris) == 0) {
     gargle_abort('
-      OAuth client (a.k.a "app") does not have a redirect URI suitable for \\
-      the pseudo-OOB flow.')
+      OAuth client does not have a redirect URI suitable for the pseudo-OOB \\
+      flow.')
   }
 
   if (length(redirect_uris) > 1) {

@@ -73,13 +73,11 @@ library(gargle)
 
 token <- token_fetch()
 #> The gargle package is requesting access to your Google account.
-#> Select a pre-authorised account or enter '0' to obtain a new token.
-#> Press Esc/Ctrl + C to cancel.
-
-#> 1: janedoe_personal@gmail.com
-#> 2: janedoe@example.com
-
-#> Selection: 1
+#> Enter '1' to start a new auth process or select a pre-authorized account.
+#> 1: Send me to the browser for a new auth process.
+#> 2: janedoe_personal@gmail.com
+#> 3: janedoe@example.com
+#> Selection: 2
 
 token
 #> ── <Token (via gargle)> ─────────────────────────────────────────────────────
@@ -112,8 +110,8 @@ out <- response_process(resp)
 
 out <- out[["items"]][1:8]
 sort(vapply(out, function(x) x[["family"]], character(1)))
-#> [1] "Lato"             "Montserrat"       "Noto Sans JP"     "Open Sans"       
-#> [5] "Poppins"          "Roboto"           "Roboto Condensed" "Source Sans Pro"
+#> [1] "Lato"             "Material Icons"   "Montserrat"       "Noto Sans JP"    
+#> [5] "Open Sans"        "Poppins"          "Roboto"           "Roboto Condensed"
 ```
 
 Please note that the ‘gargle’ project is released with a [Contributor

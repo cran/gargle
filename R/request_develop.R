@@ -1,8 +1,7 @@
 #' Build a Google API request
 #'
 #' Intended primarily for internal use in client packages that provide
-#' high-level wrappers for users. The vignette [Request helper
-#' functions](https://gargle.r-lib.org/articles/request-helper-functions.html)
+#' high-level wrappers for users. The `vignette("request-helper-functions")`
 #' describes how one might use these functions inside a wrapper package.
 #'
 #' @param endpoint List of information about the target endpoint or, in
@@ -57,8 +56,8 @@
 #'
 #' See `googledrive::generate_request()` for an example of usage in a client
 #' package. googledrive has an internal list of selected endpoints, derived from
-#' the [Drive API Discovery
-#' Document](https://www.googleapis.com/discovery/v1/apis/drive/v3/rest),
+#' the Drive API Discovery Document
+#' (`https://www.googleapis.com/discovery/v1/apis/drive/v3/rest`),
 #' exposed via `googledrive::drive_endpoints()`. An element from such a list is
 #' the expected input for `endpoint`. `googledrive::generate_request()` is a
 #' wrapper around `request_develop()` and `request_build()` that inserts a

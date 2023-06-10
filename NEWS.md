@@ -1,3 +1,44 @@
+# gargle 1.5.0
+
+* gargle's existing unexported `secret_*()` functions are deprecated, in favor
+  of new, exported `secret_*()` functions that are built on or inlined from
+  httr2. The `vignette("managing-tokens-securely")` is updated to reflect the
+  new, recommended strategy for encrypting secrets.
+  - `secret_encrypt_json()` / `secret_decrypt_json()` are new gargle-specific
+    functions.
+  - `secret_write_rds()` / `secret_read_rds()`, `secret_make_key()`, and
+    `secret_had_key()` are basically copies of their httr2 counterparts.
+  - Legacy functions to move away from: `secret_pw_name()`, `secret_pw_gen()`,
+    `secret_pw_exists()`, `secret_pw_get()`, `secret_can_decypt()`,
+    `secret_read()`, `secret_write()`.
+  - The new approach makes it much easier to use gargle functions to encrypt and
+    decrypt credentials in a project that is *not* necessarily an R package.
+
+* The transition from OAuth "app" to OAuth "client" is fully enacted now. This
+  process tarted in v1.3.0, when the `"gargle_oauth_client"` class was
+  introduced, to support the new pseudo-OOB auth flow. The deprecations are
+  implemented to preserve backwards compatibility for some time. In this
+  release, function, argument, and field names are all updated to the "client"
+  terminology:
+  
+  - `init_AuthState(client =)` instead of `init_AuthState(app =)`
+  - `AuthState$client` instead of `AuthState$app`
+  - `AuthState$set_client()` instead of `AuthState$set_app()`
+  - `gargle2.0_token(client =)` instead of `gargle2.0_token(app =)` 
+  - `credentials_user_oauth2(client =)` instead of
+    `credentials_user_oauth2(app =)`
+    
+  A new `vignette("oauth-client-not-app")` explains how a wrapper package should
+  adapt.
+
+* When the `"gargle_verbosity"` option is set to `"debug"`, there are more debugging messages around user credentials. Specifically, more information is available on the email, OAuth client, and scopes, with the goal of better understanding why a cached token is (or is not) being used.
+
+* `check_is_service_account()` is a new function for use in wrapper packages to throw a more informative error when a user provides JSON for an OAuth client to an argument that is expecting JSON for a service account.
+
+* `response_process()` has improved handling of responses that represent an HTTP error with HTML content (as opposed to the expected and preferred JSON) (#254).
+
+* `response_process(call = caller_env())` is a new argument that is passed along to various helpers, which can improve error reporting for user-facing functions that call `response_process()` (#255).
+
 # gargle 1.4.0
 
 ## Google Compute Engine

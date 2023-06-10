@@ -340,55 +340,58 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gargle)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(gargle)</span></code></pre></div>
 <div id="gargle_verbosity-option" class="section level2">
-<h2>“gargle_verbosity” option</h2>
+<h2><code>&quot;gargle_verbosity&quot;</code> option</h2>
 <p>There is a package-wide option that controls gargle’s verbosity:
-“gargle_verbosity”. The function <code>gargle_verbosity()</code> reveals
-the current value:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span></code></pre></div>
-<p>It defaults to “info”, which is fairly quiet. This is because gargle
-is designed to try a bunch of auth methods (many of which will fail) and
-persist doggedly until one succeeds. If none succeeds, gargle tries to
-guide the user through auth or, in a non-interactive session, it throws
-an error.</p>
-<p>If you need to see all those gory details, set the “gargle_verbosity”
-option to “debug” and you’ll get much more output as gargle works
-through various auth approaches.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save current value</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>op <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">gargle_verbosity =</span> <span class="st">&quot;debug&quot;</span>)</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># restore original value</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(op)</span></code></pre></div>
+<code>&quot;gargle_verbosity&quot;</code>. The function
+<code>gargle_verbosity()</code> reveals the current value:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span></code></pre></div>
+<p>It defaults to <code>&quot;info&quot;</code>, which is fairly quiet. This is
+because gargle is designed to try a bunch of auth methods (many of which
+will fail) and persist doggedly until one succeeds. If none succeeds,
+gargle tries to guide the user through auth or, in a non-interactive
+session, it throws an error.</p>
+<p>If you need to see all those gory details, set the
+<code>&quot;gargle_verbosity&quot;</code> option to <code>&quot;debug&quot;</code> and
+you’ll get much more output as gargle works through various auth
+approaches. It is <strong>normal</strong> to see lots of errors, as
+gargle tries various auth methods in succession, most of which will
+often fail.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># save current value</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>op <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">gargle_verbosity =</span> <span class="st">&quot;debug&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># restore original value</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="fu">options</span>(op)</span></code></pre></div>
 <p>Note there are also withr-style helpers:
 <code>with_gargle_verbosity()</code> and
 <code>local_gargle_verbosity()</code>.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with_gargle_verbosity</span>(</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;debug&quot;</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gargle_verbosity</span>()</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">local_gargle_verbosity</span>(<span class="st">&quot;debug&quot;</span>)</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gargle_verbosity</span>()</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="fu">f</span>()</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="fu">with_gargle_verbosity</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="st">&quot;debug&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">gargle_verbosity</span>()</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="cf">function</span>() {</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="fu">local_gargle_verbosity</span>(<span class="st">&quot;debug&quot;</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">gargle_verbosity</span>()</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>}</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="fu">f</span>()</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; [1] &quot;debug&quot;</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="fu">gargle_verbosity</span>()</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; [1] &quot;info&quot;</span></span></code></pre></div>
 </div>
 <div id="gargle_oauth_sitrep" class="section level2">
 <h2><code>gargle_oauth_sitrep()</code></h2>
@@ -403,26 +406,26 @@ what’s going on.</p>
 <p>Here is indicative output of <code>gargle_oauth_sitrep()</code>, for
 someone who has accepted the default OAuth cache location and has played
 with several APIs via gargle-using packages.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">gargle_oauth_sitrep</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; &gt; 14 tokens found in this gargle OAuth cache:</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; &#39;~/Library/Caches/gargle&#39;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; email                         app         scope                          hash...   </span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; ----------------------------- ----------- ------------------------------ ----------</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       thingy      ...bigquery, ...cloud-platform 128f9cc...</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; buzzy@example.org             gargle-demo                                15acf95...</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; stella@example.org            gargle-demo ...drive                       4281945...</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       gargle-demo ...drive                       48e7e76...</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse                                  69a7353...</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets.readonly       86a70b9...</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive                       d9443db...</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; nopqr@HIJKLMN.com             tidyverse   ...drive                       d9443db...</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...drive                       d9443db...</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; stuvwzyzabcd@gmail.com        tidyverse   ...drive                       d9443db...</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; efghijklmnopqrtsuvw@gmail.com tidyverse   ...drive                       d9443db...</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive.readonly              ecd11fa...</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...bigquery, ...cloud-platform ece63f4...</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets                f178dd8...</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">gargle_oauth_sitrep</span>()</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&#39; &gt; 14 tokens found in this gargle OAuth cache:</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&#39; &#39;~/Library/Caches/gargle&#39;</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&#39; email                         app         scope                          hash...   </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&#39; ----------------------------- ----------- ------------------------------ ----------</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       thingy      ...bigquery, ...cloud-platform 128f9cc...</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&#39; buzzy@example.org             gargle-demo                                15acf95...</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&#39; stella@example.org            gargle-demo ...drive                       4281945...</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       gargle-demo ...drive                       48e7e76...</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse                                  69a7353...</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets.readonly       86a70b9...</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive                       d9443db...</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&#39; nopqr@HIJKLMN.com             tidyverse   ...drive                       d9443db...</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...drive                       d9443db...</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&#39; stuvwzyzabcd@gmail.com        tidyverse   ...drive                       d9443db...</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&#39; efghijklmnopqrtsuvw@gmail.com tidyverse   ...drive                       d9443db...</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive.readonly              ecd11fa...</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...bigquery, ...cloud-platform ece63f4...</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets                f178dd8...</span></span></code></pre></div>
 <p>It is relatively harmless to delete the folder serving as the OAuth
 cache. Or, if you have reason to believe one specific cached token is
 causing you pain, you could delete a specific token (an
@@ -456,6 +459,11 @@ token), there is the potential for it to invalidate an older token. This
 is unlikely to be an issue for a casual user, but it can absolutely
 become noticeable for someone who is developing against a Google API or
 someone working from many different machines / caches.</p>
+<p>Another reason that an existing token stops working is if it was
+obtained with an OAuth client that is in “testing” mode. Refresh tokens
+obtained that way only last for one week, whereas it’s more typical for
+refresh tokens to last almost indefinitely (or, at least, for several
+months).</p>
 </div>
 <div id="credential-rolling" class="section level3">
 <h3>Credential rolling</h3>
@@ -466,12 +474,12 @@ new OAuth client and disable the old one. This will make it impossible
 to refresh existing tokens, made with the old, disabled client Those
 tokens will stop working.</p>
 <p><em>In gargle v1.0.0, in March 2021, we rolled the client used in
-googlesheets4, googledrive, and bigrquery. At some point in 2021, we
-plan to disable the old client. Anyone relying on the default client
+googlesheets4, googledrive, and bigrquery. We reserve the right to
+disable the old client at any time. Anyone relying on the default client
 will have to upgrade.</em></p>
 <p>The solution is to update the package in question,
 e.g. googlesheets4:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;googlesheets4&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;googlesheets4&quot;</span>)</span></code></pre></div>
 <p><strong>Restart R!</strong> Resume your work. Chances are you’ll be
 prompted to re-auth with the new client and you’ll be back in
 business.</p>
@@ -512,12 +520,57 @@ mysteriously fail because the OAuth token can’t be refreshed and a new
 token can’t be obtained in a non-interactive setting. This is why cached
 user tokens are a poor fit for such applications.</p>
 <p>If you choose to use a cached user token anyway, be prepared to deal
-with this headache periodically. Consider using your own OAuth client to
-eliminate your exposure to a third-party deciding to roll their client
-Be prepared to generate a fresh token interactively and upload it to the
-token cache consulted by your remote mission critical thing. Better yet,
-upgrade to a more robust strategy for <a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">non-interactive
+with this headache periodically. (You may not have much of a choice if
+you are using, for example, the gmailr package to work with the Gmail
+API, which has limited support for service accounts.) Consider using
+your own OAuth client to eliminate your exposure to a third-party
+deciding to roll their client. Be prepared to generate a fresh token
+interactively and upload it to the token cache consulted by your remote
+mission critical thing. Better yet, upgrade to a more robust strategy
+for <a href="https://gargle.r-lib.org/articles/non-interactive-auth.html">non-interactive
 auth</a>, such as a service account token.</p>
+</div>
+<div id="how-to-inspect-the-last-response" class="section level2">
+<h2>How to inspect the last response</h2>
+<p>By default, <code>gargle::response_process()</code> stores the most
+recently processed response in an internal environment. You can access
+this response with the nonexported helper
+<code>gargle:::gargle_last_response()</code>. Prior to storage, a few
+parts of the response are redacted or deleted, such as the access token
+and the handle. These are either sensitive (the token) or useless (the
+handle) and they have more downside than upside for downstream debugging
+use.</p>
+<p>Here’s an example of accessing the most recent response and writing
+it to file, which could be shared with someone else for debugging. The
+response is in this example has HTTP status 200, i.e. it is not an
+error. But this process works the same even if in the case of an error,
+e.g. an HTTP status &gt;= 400.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(gargle)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>req <span class="ot">&lt;-</span> <span class="fu">request_build</span>(</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">method =</span> <span class="st">&quot;GET&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;webfonts/v1/webfonts&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">params =</span> <span class="fu">list</span>(</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    <span class="at">sort =</span> <span class="st">&quot;popularity&quot;</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>  ),</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="at">key =</span> <span class="fu">gargle_api_key</span>(),</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  <span class="at">base_url =</span> <span class="st">&quot;https://www.googleapis.com&quot;</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>resp <span class="ot">&lt;-</span> <span class="fu">request_make</span>(req)</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">response_process</span>(resp)</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>lr <span class="ot">&lt;-</span> gargle<span class="sc">:::</span><span class="fu">gargle_last_response</span>()</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>tmp <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="st">&quot;gargle-last-response-&quot;</span>)</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="fu">saveRDS</span>(lr, tmp)</span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co"># you could share this .rds file with a colleague or the gargle maintainer</span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co"># how it would look to complete the round trip, i.e. load this on the other end</span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>rt_lr <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(tmp)</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="fu">all.equal</span>(lr, rt_lr)</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co"># clean up</span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="fu">unlink</span>(<span class="st">&quot;tmp&quot;</span>)</span></code></pre></div>
 </div>
 
 

@@ -348,7 +348,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </ul>
 <p>The target audience is someone writing an R package to wrap a Google
 API.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gargle)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(gargle)</span></code></pre></div>
 <div id="why-use-gargles-request-helpers" class="section level2">
 <h2>Why use gargle’s request helpers?</h2>
 <p>Why would the developer of a Google-API-wrapping package care about
@@ -459,14 +459,14 @@ shared across Google APIs and across endpoints within an API.</p>
 <p>The gargle package ships with some functions and scripts to
 facilitate the ingest of a Discovery Document. You can find these files
 in the gargle installation like so:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ddi_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;discovery-doc-ingest&quot;</span>, <span class="at">package =</span> <span class="st">&quot;gargle&quot;</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">list.files</span>(ddi_dir)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;api-wide-parameter-names.txt&quot;    &quot;api-wide-parameters-humane.txt&quot; </span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;api-wide-parameters.csv&quot;         &quot;discover-discovery.R&quot;           </span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;drive-example.R&quot;                 &quot;ingest-functions.R&quot;             </span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;method-properties-humane.txt&quot;    &quot;method-properties.csv&quot;          </span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;method-property-names.txt&quot;       &quot;parameter-properties-humane.txt&quot;</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [11] &quot;parameter-properties.csv&quot;        &quot;parameter-property-names.txt&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ddi_dir <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;discovery-doc-ingest&quot;</span>, <span class="at">package =</span> <span class="st">&quot;gargle&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">list.files</span>(ddi_dir)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;api-wide-parameter-names.txt&quot;    &quot;api-wide-parameters-humane.txt&quot; </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;  [3] &quot;api-wide-parameters.csv&quot;         &quot;discover-discovery.R&quot;           </span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;  [5] &quot;drive-example.R&quot;                 &quot;ingest-functions.R&quot;             </span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;  [7] &quot;method-properties-humane.txt&quot;    &quot;method-properties.csv&quot;          </span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;  [9] &quot;method-property-names.txt&quot;       &quot;parameter-properties-humane.txt&quot;</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; [11] &quot;parameter-properties.csv&quot;        &quot;parameter-property-names.txt&quot;</span></span></code></pre></div>
 <p>Main files of interest to the developer of a client package:</p>
 <ul>
 <li><code>ingest-functions.R</code> is a collection of functions for
@@ -502,7 +502,7 @@ sheets.spreadsheets.create
 sheets.spreadsheets.values.clear
 sheets.spreadsheets.sheets.copyTo</code></pre>
 <p>Retrieve the metadata for one endpoint by name, e.g.:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>.endpoints[[<span class="st">&quot;drive.files.create&quot;</span>]]</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>.endpoints[[<span class="st">&quot;drive.files.create&quot;</span>]]</span></code></pre></div>
 <p>That info can be passed along to
 <code>request_develop(endpoint, params, base_url)</code>, which conducts
 sanity checks and combines this external knowledge with the data coming
@@ -514,31 +514,31 @@ from the user and developer via <code>params</code>.</p>
 helper, <code>googledrive::request_generate()</code>, that is used to
 form every request in the package. It is exported as part of a low-level
 API for expert use, but most users will never know it exists.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># googledrive::</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>request_generate <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">endpoint =</span> <span class="fu">character</span>(),</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">params =</span> <span class="fu">list</span>(),</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">key =</span> <span class="cn">NULL</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">token =</span> <span class="fu">drive_token</span>()) {</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  ept <span class="ot">&lt;-</span> .endpoints[[endpoint]]</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(ept)) {</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop_glue</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Endpoint not recognized:</span><span class="sc">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="do">## modifications specific to googledrive package</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  params<span class="sc">$</span>key <span class="ot">&lt;-</span> key <span class="sc">%||%</span> params<span class="sc">$</span>key <span class="sc">%||%</span> <span class="fu">drive_api_key</span>()</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(ept<span class="sc">$</span>parameters<span class="sc">$</span>supportsTeamDrives)) {</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    params<span class="sc">$</span>supportsTeamDrives <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  req <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">request_develop</span>(<span class="at">endpoint =</span> ept, <span class="at">params =</span> params)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_build</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">path =</span> req<span class="sc">$</span>path,</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">method =</span> req<span class="sc">$</span>method,</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">params =</span> req<span class="sc">$</span>params,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">body =</span> req<span class="sc">$</span>body,</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">token =</span> token</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>request_generate <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">endpoint =</span> <span class="fu">character</span>(),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                             <span class="at">params =</span> <span class="fu">list</span>(),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                             <span class="at">key =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                             <span class="at">token =</span> <span class="fu">drive_token</span>()) {</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  ept <span class="ot">&lt;-</span> .endpoints[[endpoint]]</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(ept)) {</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="fu">stop_glue</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Endpoint not recognized:</span><span class="sc">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  }</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="do">## modifications specific to googledrive package</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  params<span class="sc">$</span>key <span class="ot">&lt;-</span> key <span class="sc">%||%</span> params<span class="sc">$</span>key <span class="sc">%||%</span> <span class="fu">drive_api_key</span>()</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(ept<span class="sc">$</span>parameters<span class="sc">$</span>supportsTeamDrives)) {</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    params<span class="sc">$</span>supportsTeamDrives <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  }</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  req <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">request_develop</span>(<span class="at">endpoint =</span> ept, <span class="at">params =</span> params)</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_build</span>(</span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>    <span class="at">path =</span> req<span class="sc">$</span>path,</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    <span class="at">method =</span> req<span class="sc">$</span>method,</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>    <span class="at">params =</span> req<span class="sc">$</span>params,</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    <span class="at">body =</span> req<span class="sc">$</span>body,</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>    <span class="at">token =</span> token</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>  )</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>}</span></code></pre></div>
 <p>The <code>endpoint</code> argument specifies an endpoint by its name,
 a.k.a. its <code>id</code>.</p>
 <p><code>params</code> is where the processed user input goes.</p>
@@ -565,36 +565,36 @@ rule that we always send exactly <strong>one</strong> of
 request.</p>
 <p><code>gargle::request_make()</code> can be used to actually execute
 it.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># gargle::</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>request_make <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ..., <span class="at">user_agent =</span> <span class="fu">gargle_user_agent</span>()) {</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.character</span>(x<span class="sc">$</span>method))</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  method <span class="ot">&lt;-</span> <span class="cf">switch</span>(</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    x<span class="sc">$</span>method,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">GET    =</span> httr<span class="sc">::</span>GET,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">POST   =</span> httr<span class="sc">::</span>POST,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">PATCH  =</span> httr<span class="sc">::</span>PATCH,</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">PUT    =</span> httr<span class="sc">::</span>PUT,</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">DELETE =</span> httr<span class="sc">::</span>DELETE,</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">abort</span>(<span class="fu">glue</span>(<span class="st">&quot;Not a recognized HTTP method: {bt(x$method)}&quot;</span>))</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">method</span>(</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">url =</span> x<span class="sc">$</span>url,</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">body =</span> x<span class="sc">$</span>body,</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    x<span class="sc">$</span>token,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    user_agent,</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    ...</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># gargle::</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>request_make <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ..., <span class="at">user_agent =</span> <span class="fu">gargle_user_agent</span>()) {</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.character</span>(x<span class="sc">$</span>method))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  method <span class="ot">&lt;-</span> <span class="cf">switch</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    x<span class="sc">$</span>method,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">GET    =</span> httr<span class="sc">::</span>GET,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="at">POST   =</span> httr<span class="sc">::</span>POST,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    <span class="at">PATCH  =</span> httr<span class="sc">::</span>PATCH,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="at">PUT    =</span> httr<span class="sc">::</span>PUT,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="at">DELETE =</span> httr<span class="sc">::</span>DELETE,</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="fu">abort</span>(<span class="fu">glue</span>(<span class="st">&quot;Not a recognized HTTP method: {bt(x$method)}&quot;</span>))</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  )</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>  <span class="fu">method</span>(</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    <span class="at">url =</span> x<span class="sc">$</span>url,</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>    <span class="at">body =</span> x<span class="sc">$</span>body,</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>    x<span class="sc">$</span>token,</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>    user_agent,</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>    ...</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  )</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>}</span></code></pre></div>
 <p><code>request_make()</code> consults <code>x$method</code> to
 identify the <code>httr::VERB()</code> and then calls it with the
 remainder of <code>x</code>, <code>...</code> and the
 <code>user_agent</code>.</p>
 <p>In googledrive we have a thin wrapper around this that injects the
 googledrive user agent:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># googledrive::</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>request_make <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) {</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_make</span>(x, ..., <span class="at">user_agent =</span> <span class="fu">drive_ua</span>())</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># googledrive::</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>request_make <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_make</span>(x, ..., <span class="at">user_agent =</span> <span class="fu">drive_ua</span>())</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <div id="reference" class="section level2">
 <h2>Reference</h2>

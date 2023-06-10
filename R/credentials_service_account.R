@@ -4,14 +4,18 @@
 #' @param path JSON identifying the service account, in one of the forms
 #'   supported for the `txt` argument of [jsonlite::fromJSON()] (typically, a
 #'   file path or JSON string).
-#' @param subject An optional subject claim. Use for a service account which has
-#'   been granted domain-wide authority by an administrator. Such delegation of
-#'   domain-wide authority means that the service account is permitted to act on
-#'   behalf of users, without their consent. Identify the user to impersonate
-#'   via their email, e.g. `subject = "user@example.com"`.
+#' @param subject An optional subject claim. Specify this if you wish to use the
+#'   service account represented by `path` to impersonate the `subject`, who is
+#'   a normal user. Before this can work, an administrator must grant the service
+#'   account domain-wide authority. Identify the user to impersonate via their
+#'   email, e.g. `subject = "user@example.com"`. Note that gargle automatically
+#'   adds the non-sensitive `"https://www.googleapis.com/auth/userinfo.email"`
+#'   scope, so this scope must be enabled for the service account, along with
+#'   any other `scopes` being requested.
 #'
-#' @details Note that fetching a token for a service account requires a reasonably accurate system clock. For more information, see the vignette [How gargle gets
-#' tokens](https://gargle.r-lib.org/articles/how-gargle-gets-tokens.html).
+#' @details Note that fetching a token for a service account requires a
+#'   reasonably accurate system clock. For more information, see the
+#'   `vignette("how-gargle-gets-tokens")`.
 #' @seealso Additional reading on delegation of domain-wide authority:
 #' * <https://developers.google.com/identity/protocols/oauth2/service-account#delegatingauthority>
 #'
@@ -57,5 +61,43 @@ credentials_service_account <- function(scopes = NULL,
   } else {
     gargle_debug("service account email: {.email {token_email(token)}}")
     token
+  }
+}
+
+#' Check for a service account
+#'
+#' This pre-checks information provided to a high-level, user-facing auth
+#' function, such as `googledrive::drive_auth()`, before passing the user's
+#' input along to [token_fetch()], which is designed to silently swallow errors.
+#' Some users are confused about the difference between an OAuth client and a
+#' service account and they provide the (path to the) JSON for one, when the
+#' other is what's actually expected.
+#'
+#' @inheritParams credentials_service_account
+#' @param hint The relevant function to call for configuring an OAuth client.
+#' @inheritParams rlang::abort
+#'
+#' @return Nothing. Exists purely to throw an error.
+#' @export
+#' @keywords internal
+check_is_service_account <- function(path, hint, call = caller_env()) {
+  if (is.null(path)) {
+    return(invisible())
+  }
+
+  tryCatch(
+    info <- jsonlite::fromJSON(path, simplifyVector = FALSE),
+    error = NULL
+  )
+
+  if (!is.null(info) && !identical(info[["type"]], "service_account")) {
+    cli::cli_abort(c(
+      "{.arg path} does not represent a service account.",
+      "Did you provide the JSON for an OAuth client instead of for a \\
+         service account?",
+      "Use {.fun {hint}} to configure the OAuth client."
+      ),
+      call = call
+    )
   }
 }

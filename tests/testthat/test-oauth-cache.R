@@ -22,7 +22,6 @@ test_that("`cache = NA` is like `cache = FALSE` if cache not available", {
   local_mocked_bindings(
     # we want no existing cache to be found, be it current or legacy
     gargle_default_oauth_cache_path = function() file_temp(),
-    gargle_legacy_default_oauth_cache_path = function() file_temp(),
     cache_allowed = function(path) FALSE
   )
   expect_equal(cache_establish(NA), cache_establish(FALSE))
@@ -58,7 +57,6 @@ test_that("default is to consult and set the oauth cache option", {
   local_mocked_bindings(
     # we want no existing cache to be found, be it current or legacy
     gargle_default_oauth_cache_path = function() file_temp(),
-    gargle_legacy_default_oauth_cache_path = function() file_temp(),
     cache_allowed = function(path) FALSE
   )
 
@@ -82,13 +80,13 @@ test_that("cache_clean() works", {
 
   fauxen_a <- gargle2.0_token(
     email = "a@example.org",
-    app = httr::oauth_app("apple", key = "KEY", secret = "SECRET"),
+    client = gargle_oauth_client(id = "CLIENT_ID", secret = "SECRET", name = "apple"),
     credentials = list(a = 1),
     cache = cache_folder
   )
   fauxen_b <- gargle2.0_token(
     email = "b@example.org",
-    app = httr::oauth_app("banana", key = "KEY", secret = "SECRET"),
+    client = gargle_oauth_client(id = "CLIENT_ID", secret = "SECRET", name = "banana"),
     credentials = list(b = 1),
     cache = cache_folder
   )
@@ -99,7 +97,7 @@ test_that("cache_clean() works", {
     cache_clean(cache_folder, "apple")
   )
   dat <- gargle_oauth_dat(cache_folder)
-  expect_equal(dat$app, "banana")
+  expect_equal(dat$client, "banana")
 
   local_gargle_verbosity("silent")
   cache_clean(cache_folder, "banana")
@@ -239,8 +237,6 @@ test_that("token_match() scolds but returns short hash match when non-interactiv
   )
   expect_equal(m, one_existing)
 })
-# 1 short hash match, interactive
-# >1 short hash match, interactive
 
 # situation report ----------------------------------------------------------
 
@@ -269,7 +265,7 @@ test_that("gargle_oauth_dat() is OK with nonexistent or empty cache", {
   tmp_cache <- file_temp()
   withr::defer(dir_delete(tmp_cache))
 
-  columns <- c("email", "app", "scopes", "hash", "filepath")
+  columns <- c("email", "client", "scopes", "hash", "filepath")
 
   dat <- gargle_oauth_dat(tmp_cache)
   expect_s3_class(dat, "gargle_oauth_dat")
