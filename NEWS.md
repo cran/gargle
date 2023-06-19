@@ -1,3 +1,10 @@
+# gargle 1.5.1
+
+* Completed some overlooked, unfinished work around the OAuth "app" to "client"
+  transition that affected out-of-bound auth (#263, #264).
+  
+* The `secret_*()` functions are more discoverable via documentation.
+
 # gargle 1.5.0
 
 * gargle's existing unexported `secret_*()` functions are deprecated, in favor
