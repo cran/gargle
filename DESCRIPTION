@@ -1,6 +1,6 @@
 Package: gargle
 Title: Utilities for Working with Google APIs
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: c(
     person("Jennifer", "Bryan", , "jenny@posit.co", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-6983-2759")),
@@ -30,7 +30,7 @@ Encoding: UTF-8
 Language: en-US
 RoxygenNote: 7.2.3
 NeedsCompilation: no
-Packaged: 2023-06-19 20:10:52 UTC; jenny
+Packaged: 2023-07-20 18:17:52 UTC; jenny
 Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   Craig Citro [aut],
   Hadley Wickham [aut] (<https://orcid.org/0000-0003-4757-117X>),
@@ -38,4 +38,4 @@ Author: Jennifer Bryan [aut, cre] (<https://orcid.org/0000-0002-6983-2759>),
   Posit Software, PBC [cph, fnd]
 Maintainer: Jennifer Bryan <jenny@posit.co>
 Repository: CRAN
-Date/Publication: 2023-06-19 20:40:02 UTC
+Date/Publication: 2023-07-20 18:50:08 UTC
