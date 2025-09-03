@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -540,9 +541,9 @@ opt for the <code>drive.readonly</code> scope.</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># googledrive::</span></span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">drive_auth</span>(<span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive.readonly&quot;</span>)</span></code></pre></div>
 </div>
-<div id="oauth-cache-and-out-of-bound-auth" class="section level3">
-<h3>OAuth cache and Out-of-bound auth</h3>
-<p>The location of the token cache and whether to prefer out-of-bound
+<div id="oauth-cache-and-out-of-band-auth" class="section level3">
+<h3>OAuth cache and Out-of-band auth</h3>
+<p>The location of the token cache and whether to prefer out-of-band
 auth are two aspects of OAuth where most users are content to go along
 with sensible default behavior. For those who want to exert control,
 that can be done in direct calls to <code>drive_auth()</code> or by

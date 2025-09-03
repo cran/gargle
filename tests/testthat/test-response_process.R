@@ -12,7 +12,11 @@ expect_recorded_error <- function(filename, status_code) {
       perl = TRUE
     )
   }
-  expect_snapshot(response_process(resp), error = TRUE, transform = scrub_filepath)
+  expect_snapshot(
+    response_process(resp),
+    error = TRUE,
+    transform = scrub_filepath
+  )
 }
 
 test_that("Resource exhausted (Sheets, ReadGroup)", {
@@ -86,6 +90,14 @@ test_that("Request for nonexistent resource (Sheets)", {
   expect_recorded_error(
     "sheets-spreadsheets-get-nonexistent-sheet-id_404",
     404
+  )
+})
+
+# https://github.com/tidyverse/googlesheets4/issues/317
+test_that("Use service account that's not enabled for the API (Sheets)", {
+  expect_recorded_error(
+    "sheets-spreadsheets-get-service-disabled_403",
+    403
   )
 })
 

@@ -71,10 +71,12 @@
 #' resp <- gargle::request_make(req)
 #' response_process(resp)
 #' }
-response_process <- function(resp,
-                             error_message = gargle_error_message,
-                             remember = TRUE,
-                             call = caller_env()) {
+response_process <- function(
+  resp,
+  error_message = gargle_error_message,
+  remember = TRUE,
+  call = caller_env()
+) {
   if (remember) {
     gargle_env$last_response <- redact_response(resp)
   }
@@ -120,10 +122,12 @@ check_for_json <- function(resp, call = caller_env()) {
   )
 }
 
-gargle_abort_request_failed <- function(message,
-                                        resp,
-                                        .envir = caller_env(),
-                                        call = caller_env()) {
+gargle_abort_request_failed <- function(
+  message,
+  resp,
+  .envir = caller_env(),
+  call = caller_env()
+) {
   gargle_abort(
     message,
     class = c(
@@ -161,7 +165,7 @@ gargle_error_message <- function(resp, call = caller_env()) {
       "*" = content$error,
       "*" = content$error_description
     )
-    return(message)
+    return(escape_braces(message))
   }
 
   if (is.null(error)) {
@@ -170,26 +174,52 @@ gargle_error_message <- function(resp, call = caller_env()) {
       httr::http_status(resp)$message,
       "*" = content$error_description
     )
-    return(message)
+    return(escape_braces(message))
   }
   errors <- error[["errors"]]
 
   if (is.null(errors)) {
     # developed from test fixtures from "sheets.spreadsheets.get" endpoint
     status <- httr::http_status(resp)
+
     message <- c(
       glue("{status$category}: ({error$code}) {error$status}"),
       "*" = rpc_description(error$status),
       "*" = error$message
     )
-    if (!is.null(error$details)) {
-      message <- c(
-        message,
-        "",
-        reveal_details(error$details)
-      )
+
+    error_details <- error$details
+    if (is.null(error_details)) {
+      return(escape_braces(message))
     }
-    return(message)
+
+    # https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
+    # Look for a localized error message
+    # Below, we display it alongside the main message, if it's not identical to
+    # the primary message
+    # Remove the localized message from error details, regardless
+    # Currently ignoring the locale info, because it seems hard to reliably
+    # compare to something returned by Sys.getlocale()
+    types <- map_chr(error_details, function(x) x[["@type"]])
+    lm_index <- match("type.googleapis.com/google.rpc.LocalizedMessage", types)
+    localized_message <- error_details[[lm_index]][["message"]]
+    if (!is.na(lm_index)) {
+      error_details <- error_details[-lm_index]
+    }
+
+    if (
+      !is.null(localized_message) &&
+        !identical(localized_message, error$message)
+    ) {
+      message <- c(message, "*" = localized_message)
+    }
+
+    message <- c(
+      message,
+      "",
+      reveal_details(error_details)
+    )
+    return(escape_braces(message))
   }
 
   # developed from
@@ -233,7 +263,8 @@ rpc_description <- function(rpc) {
 # APIs will ultimately converge on"
 # https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
 oops <- read.csv(
-  text = trimws(c('
+  text = trimws(c(
+    '
   HTTP,                   RPC,  Description
    200,                  "OK", "No error."
    400,    "INVALID_ARGUMENT", "Client specified an invalid argument. Check error message and error details for more information."
@@ -252,8 +283,10 @@ oops <- read.csv(
    501,     "NOT_IMPLEMENTED", "API method not implemented by the server."
    503,         "UNAVAILABLE", "Service unavailable. Typically the server is down."
    504,   "DEADLINE_EXCEEDED", "Request deadline exceeded. This will happen only if the caller sets a deadline that is shorter than the method\'s default deadline (i.e. requested deadline is not enough for the server to process the request) and the request did not finish within the deadline."
-                         ')),
-  stringsAsFactors = FALSE, strip.white = TRUE
+                         '
+  )),
+  stringsAsFactors = FALSE,
+  strip.white = TRUE
 )
 
 # https://github.com/googleapis/googleapis/blob/master/google/rpc/error_details.proto
@@ -292,10 +325,11 @@ reveal_detail <- function(x) {
     bulletize(glue_data(as.list(e), "{names(e)}: {e}"), n_show = 10)
   }
 
-  switch(type,
+  switch(
+    type,
     "google.rpc.BadRequest" = rpc_bad_request(x),
-    "google.rpc.Help"       = rpc_help(x),
-    "google.rpc.ErrorInfo"  = rpc_error_info(x),
+    "google.rpc.Help" = rpc_help(x),
+    "google.rpc.ErrorInfo" = rpc_error_info(x),
     # must be an unimplemented type, such as RetryInfo, QuotaFailure, etc.
     bulletize(
       map_chr(
@@ -307,7 +341,11 @@ reveal_detail <- function(x) {
           "Consider opening an issue at \\
            <https://github.com/r-lib/gargle/issues.>"
         ),
-        glue
+        # https://github.com/tidyverse/googlesheets4/issues/317
+        # this needs to be an anonymous function (as opposed to naked `glue`)
+        # in order to capture the value of `type`
+        # good write-up in https://stackoverflow.com/a/75247635
+        function(x) glue(x)
       )
     )
   )
@@ -332,5 +370,18 @@ gargle_html_error_message <- function(resp) {
       "Or execute {.code <<x>>} to view it in your browser."
     )
   )
+}
 
+# Google APIs might return error messages containing curly braces, e.g.
+# "metadata.quota_unit: 1/min/{project}/{user}"
+# This can cause problems when eventually process by cli::cli_abort(), e.g.
+# Error:
+# ! ! Could not evaluate cli `{}` expression: `project`.
+# Caused by error in `eval(expr, envir = envir)`:
+# ! object 'project' not found
+# So we need to escape them by doubling them, so they are taken literally.
+# Seen by me and by a user:
+# https://github.com/tidyverse/googlesheets4/issues/319
+escape_braces <- function(msg) {
+  gsub("([{}])", "\\1\\1", msg)
 }

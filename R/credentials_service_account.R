@@ -29,10 +29,12 @@
 #'   path = "/path/to/your/service-account.json"
 #' )
 #' }
-credentials_service_account <- function(scopes = NULL,
-                                        path = "",
-                                        ...,
-                                        subject = NULL) {
+credentials_service_account <- function(
+  scopes = NULL,
+  path = "",
+  ...,
+  subject = NULL
+) {
   gargle_debug("trying {.fun credentials_service_account}")
   info <- jsonlite::fromJSON(path, simplifyVector = FALSE)
   if (!identical(info[["type"]], "service_account")) {
@@ -55,8 +57,10 @@ credentials_service_account <- function(scopes = NULL,
     scope = scopes,
     sub = subject
   )
-  if (is.null(token$credentials$access_token) ||
-    !nzchar(token$credentials$access_token)) {
+  if (
+    is.null(token$credentials$access_token) ||
+      !nzchar(token$credentials$access_token)
+  ) {
     NULL
   } else {
     gargle_debug("service account email: {.email {token_email(token)}}")
@@ -91,11 +95,14 @@ check_is_service_account <- function(path, hint, call = caller_env()) {
   )
 
   if (is.null(info) || !identical(info[["type"]], "service_account")) {
-    cli::cli_abort(c(
-      "{.arg path} does not represent a service account.",
-      "Did you provide the JSON for an OAuth client instead of for a \\
-         service account?",
-      "Use {.fun {hint}} to configure the OAuth client."
+    cli::cli_abort(
+      c(
+        "{.arg path} does not represent a service account.",
+        "i" = "If {.arg path} is meant to be a filepath, perhaps the file does \\
+               not exist?",
+        "i" = "Did you provide the JSON for an OAuth client instead of for a \\
+               service account?",
+        "i" = "To configure the OAuth client, use {.fun {hint}} instead."
       ),
       call = call
     )

@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -458,7 +459,7 @@ just to make this all more concrete:</p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;client_secret_installed.googleusercontent.com.json&quot;</span>,</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">package =</span> <span class="st">&quot;gargle&quot;</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>))</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/private/tmp/RtmpfBi3gI/Rinst89b755898995/gargle/extdata/client_secret_installed.googleusercontent.com.json&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/private/tmp/RtmpxuKwNj/Rinst531e396c15d4/gargle/extdata/client_secret_installed.googleusercontent.com.json&quot;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>jsonlite<span class="sc">::</span><span class="fu">prettify</span>(<span class="fu">scan</span>(path_to_installed_client, <span class="at">what =</span> <span class="fu">character</span>()))</span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; {</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;     &quot;installed&quot;: {</span></span>
@@ -488,7 +489,7 @@ just to make this all more concrete:</p>
 <span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>  <span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;client_secret_web.googleusercontent.com.json&quot;</span>,</span>
 <span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>  <span class="at">package =</span> <span class="st">&quot;gargle&quot;</span></span>
 <span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>))</span>
-<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/private/tmp/RtmpfBi3gI/Rinst89b755898995/gargle/extdata/client_secret_web.googleusercontent.com.json&quot;</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; [1] &quot;/private/tmp/RtmpxuKwNj/Rinst531e396c15d4/gargle/extdata/client_secret_web.googleusercontent.com.json&quot;</span></span>
 <span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>jsonlite<span class="sc">::</span><span class="fu">prettify</span>(<span class="fu">scan</span>(path_to_web_client, <span class="at">what =</span> <span class="fu">character</span>()))</span>
 <span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; {</span></span>
 <span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;     &quot;web&quot;: {</span></span>

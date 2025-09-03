@@ -48,6 +48,7 @@ overflow: visible;
 }
 </style>
 <style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -511,7 +512,7 @@ namespace:</li>
 <div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># create namespace</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="ex">kubectl</span> create namespace my-namespace</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co"># Create Kubernetes service account</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="ex">kubectl</span> create serviceaccount <span class="at">--namespace</span> my-namespace bq-service-account </span></code></pre></div>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="ex">kubectl</span> create serviceaccount <span class="at">--namespace</span> my-namespace bq-service-account</span></code></pre></div>
 <ol start="4" style="list-style-type: decimal">
 <li>Bind that Kubernetes service account to the service account outside
 of Kubernetes you created in step 1, and assign it an annotation:</li>
@@ -713,7 +714,7 @@ store the token in its cache.</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">library</span>(googledrive)</span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># do anything that triggers auth</span></span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">drive_find</span>(n_max)</span></code></pre></div>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">drive_find</span>(<span class="at">n_max =</span> <span class="dv">5</span>)</span></code></pre></div>
 <p><strong>Step 2</strong>: Revise your code to pre-authorize the use of
 that token next time. Now your <code>.Rmd</code> can be rendered or your
 <code>.R</code> script can run, without further interaction.</p>
