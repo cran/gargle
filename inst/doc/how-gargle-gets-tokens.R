@@ -1,26 +1,26 @@
-## ----include = FALSE----------------------------------------------------------
+## -----------------------------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup--------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(gargle)
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes, ...)
 
 ## -----------------------------------------------------------------------------
 writeLines(names(cred_funs_list()))
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(token = <TOKEN2.0>)
 # 
 # credentials_byo_oauth2(
 #   token = <TOKEN2.0>
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes = <SCOPES>, path = "/path/to/your/service-account.json")
 # 
 # # credentials_byo_oauth2() fails because no `token`,
@@ -30,7 +30,7 @@ writeLines(names(cred_funs_list()))
 #   path = "/path/to/your/service-account.json"
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes = <SCOPES>, path = "/path/to/your/external-account.json")
 # 
 # # credentials_byo_oauth2() fails because no `token`,
@@ -42,7 +42,7 @@ writeLines(names(cred_funs_list()))
 #   path = "/path/to/your/external-account.json"
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes = <SCOPES>)
 # 
 # # credentials_byo_oauth2() fails because no `token`,
@@ -53,7 +53,7 @@ writeLines(names(cred_funs_list()))
 #   scopes = <SCOPES>
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # ${GOOGLE_APPLICATION_CREDENTIALS}
 # ${CLOUDSDK_CONFIG}/application_default_credentials.json
 # 
@@ -65,7 +65,7 @@ writeLines(names(cred_funs_list()))
 # # on not-Windows:
 # ~/.config/gcloud/application_default_credentials.json
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes = <SCOPES>)
 # # or perhaps
 # token_fetch(scopes = <SCOPES>, service_account = <SERVICE_ACCOUNT>)
@@ -85,7 +85,7 @@ writeLines(names(cred_funs_list()))
 #   service_account = <SERVICE_ACCOUNT>
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # token_fetch(scopes = <SCOPES>)
 # 
 # # credentials_byo_oauth2() fails because no `token`,
@@ -100,7 +100,7 @@ writeLines(names(cred_funs_list()))
 #   package = "<PACKAGE>"
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # # user initiates auth or does something that triggers it indirectly
 # THINGY_auth()
 # 
@@ -118,7 +118,7 @@ writeLines(names(cred_funs_list()))
 #   package = "thingyr"
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # gargle2.0_token(
 #   email   = gargle_oauth_email(),
 #   app     = thingy_app(),
@@ -127,7 +127,7 @@ writeLines(names(cred_funs_list()))
 #   cache   = gargle_oauth_cache()
 # )
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # The thingyr package is requesting access to your Google account.
 # Enter '1' to start a new auth process or select a pre-authorized account.
 # 1: Send me to the browser for a new auth process.
@@ -136,10 +136,10 @@ writeLines(names(cred_funs_list()))
 # 4: janedoe_work@gmail.com
 # Selection:
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # thingy_auth(email = "janedoe_work@gmail.com")
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # gargle_oauth_sitrep()
 # #> 14 tokens found in this gargle OAuth cache:
 # #> ~/Library/Caches/gargle
@@ -164,6 +164,6 @@ writeLines(names(cred_funs_list()))
 ## -----------------------------------------------------------------------------
 writeLines(names(cred_funs_list()))
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # gargle::cred_funs_add(credentials_gce = NULL)
 

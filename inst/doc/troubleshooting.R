@@ -1,10 +1,10 @@
-## ----include = FALSE----------------------------------------------------------
+## -----------------------------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----setup--------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 library(gargle)
 
 ## -----------------------------------------------------------------------------
@@ -38,7 +38,7 @@ f()
 
 gargle_verbosity()
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # gargle_oauth_sitrep()
 # #' > 14 tokens found in this gargle OAuth cache:
 # #' '~/Library/Caches/gargle'
@@ -60,18 +60,18 @@ gargle_verbosity()
 # #' abcdefghijklm@gmail.com       tidyverse   ...bigquery, ...cloud-platform ece63f4...
 # #' nopqr@ABCDEFG.com             tidyverse   ...spreadsheets                f178dd8...
 
-## ----eval = FALSE-------------------------------------------------------------
+## -----------------------------------------------------------------------------
 # install.packages("googlesheets4")
 
-## ----echo = FALSE, out.width = "400px"----------------------------------------
+## -----------------------------------------------------------------------------
 knitr::include_graphics("deleted_client.png")
 
-## ----include = FALSE----------------------------------------------------------
+## -----------------------------------------------------------------------------
 # only run the chunk below in settings that are known to be safe, i.e. where
 # occasional, incidental failure is OK
 can_decrypt <- gargle::secret_has_key("GARGLE_KEY")
 
-## ----eval = can_decrypt, purl = can_decrypt-----------------------------------
+## -----------------------------------------------------------------------------
 library(gargle)
 
 req <- request_build(
@@ -86,7 +86,7 @@ req <- request_build(
 resp <- request_make(req)
 out <- response_process(resp)
 
-lr <- gargle:::gargle_last_response()
+lr <- gargle_last_response()
 tmp <- tempfile("gargle-last-response-")
 saveRDS(lr, tmp)
 # you could share this .rds file with a colleague or the gargle maintainer

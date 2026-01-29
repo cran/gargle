@@ -18,17 +18,16 @@
 #'   * Status code in the 100s (information) or 300s (redirection). These are
 #'     unexpected.
 #'
-#' If `process_response()` results in an error, a redacted version of the `resp`
+#' If `response_process()` results in an error, a redacted version of the `resp`
 #' input is returned in the condition (auth tokens are removed).
 #'
 #' @details
 #' When `remember = TRUE` (the default), gargle stores the most recently seen
 #' response internally, for *post hoc* examination. The stored response is
 #' literally just the most recent `resp` input, but with auth tokens redacted.
-#' It can be accessed via the unexported function
-#' `gargle:::gargle_last_response()`. A companion function
-#' `gargle:::gargle_last_content()` returns the content of the last response,
-#' which is probably the most useful form for *post mortem* analysis.
+#' It can be accessed via [gargle_last_response()]. A companion function
+#' [gargle_last_content()] returns just the parsed content, which is probably
+#' the most useful form for *post mortem* analysis.
 #'
 #' The `response_as_json()` helper is exported only as an aid to maintainers who
 #' wish to use their own `error_message` function, instead of gargle's built-in
@@ -39,6 +38,9 @@
 #' @param resp Object of class `response` from [httr].
 #' @param error_message Function that produces an informative error message from
 #'   the primary input, `resp`. It must return a character vector.
+#' @param error_class Optional character vector of error classes to add to the
+#'   condition object. These classes are prepended to gargle's default classes
+#'   (`"gargle_error_request_failed"` and `"http_error_{status_code}"`).
 #' @param remember Whether to remember the most recently processed response.
 #' @inheritParams rlang::abort
 #'
@@ -74,6 +76,7 @@
 response_process <- function(
   resp,
   error_message = gargle_error_message,
+  error_class = NULL,
   remember = TRUE,
   call = caller_env()
 ) {
@@ -93,6 +96,7 @@ response_process <- function(
     gargle_abort_request_failed(
       error_message(resp, call = call),
       resp,
+      class = error_class,
       call = call
     )
   }
@@ -125,12 +129,14 @@ check_for_json <- function(resp, call = caller_env()) {
 gargle_abort_request_failed <- function(
   message,
   resp,
+  class = NULL,
   .envir = caller_env(),
   call = caller_env()
 ) {
   gargle_abort(
     message,
     class = c(
+      class,
       "gargle_error_request_failed",
       glue("http_error_{httr::status_code(resp)}")
     ),
@@ -335,8 +341,8 @@ reveal_detail <- function(x) {
       map_chr(
         c(
           "Error details of type '{type}' may not be fully revealed.",
-          "Workaround: use `gargle:::gargle_last_response()` or \\
-           `gargle:::gargle_last_content()` to inspect error payload \\
+          "Workaround: use `gargle_last_response()` or \\
+           `gargle_last_content()` to inspect error payload \\
            yourself.",
           "Consider opening an issue at \\
            <https://github.com/r-lib/gargle/issues.>"

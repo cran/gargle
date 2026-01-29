@@ -435,7 +435,7 @@ literally, or on another Google Cloud product built on top of GCE. You
 should consider Google’s own documentation to be definitive, but we’ll
 try to give a useful summary here and to explain how gargle works with
 GCE:</p>
-<p><a href="https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances" class="uri">https://cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances</a></p>
+<p><a href="https://docs.cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances" class="uri">https://docs.cloud.google.com/compute/docs/access/create-enable-service-accounts-for-instances</a></p>
 <p>A Google Cloud Platform (GCP) project generally has a GCE default
 service account and, by default, a new GCE instance runs as that service
 account. (If you wish, you can use a <em>different</em> service account
@@ -450,12 +450,16 @@ packages). This token request can be made for specific scopes and, in
 general, most wrapper packages will indeed be asking for specific scopes
 relevant to the API they access. Consider the signature of
 <code>googledrive::drive_auth()</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>drive_auth <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">email =</span> gargle<span class="sc">::</span><span class="fu">gargle_oauth_email</span>(),</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>                       <span class="at">path =</span> <span class="cn">NULL</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>                       <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>                       <span class="at">cache =</span> gargle<span class="sc">::</span><span class="fu">gargle_oauth_cache</span>(),</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>                       <span class="at">use_oob =</span> gargle<span class="sc">::</span><span class="fu">gargle_oob_default</span>(),</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>                       <span class="at">token =</span> <span class="cn">NULL</span>) { ... }</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>drive_auth <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">email =</span> gargle<span class="sc">::</span><span class="fu">gargle_oauth_email</span>(),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">path =</span> <span class="cn">NULL</span>,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">scopes =</span> <span class="st">&quot;https://www.googleapis.com/auth/drive&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">cache =</span> gargle<span class="sc">::</span><span class="fu">gargle_oauth_cache</span>(),</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">use_oob =</span> gargle<span class="sc">::</span><span class="fu">gargle_oob_default</span>(),</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">token =</span> <span class="cn">NULL</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>) {</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  ...</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>}</span></code></pre></div>
 <p>The googledrive package asks for a token with <code>&quot;drive&quot;</code>
 scope, by default. This brings up one big gotcha when using packages
 like googledrive or googlesheets4 on GCE.</p>
@@ -488,7 +492,7 @@ explicit or implicit auth happens:</p>
 <div id="workload-identity-on-google-kubernetes-engine-gke" class="section level3">
 <h3>Workload Identity on Google Kubernetes Engine (GKE)</h3>
 <p>Here we discuss how gargle’s GCE auth can work for a related service,
-Google Kubernetes Engine (GKE), using <a href="https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity">Workload
+Google Kubernetes Engine (GKE), using <a href="https://docs.cloud.google.com/kubernetes-engine/docs/how-to/workload-identity">Workload
 Identity</a>. This is more complicated that direct usage of GCE and some
 extra configuration is needed to make a service account’s metadata
 available for the GKE instance to discover. GKE is the underlying
@@ -498,7 +502,7 @@ also applies to R docker files being called in that environment.</p>
 and other places, if possible, since it eliminates the use of a file
 that holds the service key, which is a potential security risk.</p>
 <ol style="list-style-type: decimal">
-<li>Following the <a href="https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity">Workload
+<li>Following the <a href="https://docs.cloud.google.com/kubernetes-engine/docs/how-to/workload-identity">Workload
 Identity docs</a>, you create a service account as normal and give it
 permissions and scopes needed to, say, upload to BigQuery. Imagine that
 <code>my-service-key@my-project.iam.gserviceaccount.com</code> has the
@@ -529,7 +533,7 @@ of Kubernetes you created in step 1, and assign it an annotation:</li>
 Airflow, you can pass them in using the Python code
 <code>GKEStartPodOperator(...., namespace=&#39;my-namespace&#39;, service_account_name=&#39;bq-service-account&#39;)</code>.
 Documentation around <code>GKEStartPodOperator()</code> within Cloud
-Composer can be found <a href="https://cloud.google.com/composer/docs/composer-2/use-gke-operator">here</a>.</p>
+Composer can be found <a href="https://docs.cloud.google.com/composer/docs/composer-2/use-gke-operator">here</a>.</p>
 <ol start="5" style="list-style-type: decimal">
 <li>In order for the R function <code>gargle::gce_credentials()</code>
 do the right thing, you need to do two things:</li>
@@ -546,8 +550,10 @@ can see.</li>
 <p>Here is example code that you might execute in your Docker
 container:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">gargle.gce.use_ip =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>t <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">credentials_gce</span>(<span class="st">&quot;my-service-key@my-project.iam.gserviceaccount.com&quot;</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co"># ... do authenticated stuff with the token t ...</span></span></code></pre></div>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>t <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">credentials_gce</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="st">&quot;my-service-key@my-project.iam.gserviceaccount.com&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co"># ... do authenticated stuff with the token t ...</span></span></code></pre></div>
 <p>Let’s assume that PKG is an R package that implements gargle auth in
 the standard way, such as bigrquery or googledrive. At the time of
 writing the <code>service_account</code> argument is not exposed in the
@@ -639,7 +645,7 @@ the auth function:</li>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">scopes =</span> ...,</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="at">subject =</span> <span class="st">&quot;user@example.com&quot;</span></span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>)</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>googledrive<span class="sc">::</span><span class="fu">dive_auth</span>(<span class="at">token =</span> t)</span></code></pre></div>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>googledrive<span class="sc">::</span><span class="fu">drive_auth</span>(<span class="at">token =</span> t)</span></code></pre></div>
 <p>If delegation of domain-wide authority is impossible or unappealing,
 you must use an OAuth user token, as described below.</p>
 </div>
