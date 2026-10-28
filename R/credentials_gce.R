@@ -48,9 +48,9 @@
 #' @inheritParams token_fetch
 #' @param service_account Name of the GCE service account to use.
 #'
-#' @seealso A related auth flow that can be used on certain non-Google cloud
-#' providers is workload identity federation, which is implemented in
-#' [credentials_external_account()].
+#' @seealso A related auth flow that can be used on certain non-Google
+#' platforms, such as AWS or GitHub Actions, is workload identity federation,
+#' which is implemented in [credentials_external_account()].
 #'
 #' <https://docs.cloud.google.com/compute/docs/access/service-accounts>
 #'
@@ -176,7 +176,9 @@ GceToken <- R6::R6Class(
       req <- request_build(
         method = "GET",
         path = "oauth2/v3/tokeninfo",
-        params = list(access_token = token$access_token),
+        token = httr::add_headers(
+          Authorization = paste("Bearer", token$access_token)
+        ),
         base_url = "https://www.googleapis.com"
       )
       resp <- request_make(req)
@@ -355,8 +357,8 @@ gce_instance_service_accounts <- function() {
   data.frame(
     name = names(raw$email),
     email = unlist(raw$email),
-    aliases = map_chr(raw$aliases, function(x) glue_collapse(x, sep = ",")),
-    scopes = map_chr(raw$scopes, function(x) glue_collapse(x, sep = ",")),
+    aliases = map_chr(raw$aliases, \(x) glue_collapse(x, sep = ",")),
+    scopes = map_chr(raw$scopes, \(x) glue_collapse(x, sep = ",")),
     stringsAsFactors = FALSE,
     row.names = NULL
   )

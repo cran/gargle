@@ -473,7 +473,7 @@ documenting a package on a continuous integration service.</p>
 <p>The JSON key file must be managed securely. In particular, it should
 not be kept in, e.g., a GitHub repository (unless it is encrypted). The
 encryption strategy used by gargle and other packages is described in
-the article <a href="https://gargle.r-lib.org/articles/articles/managing-tokens-securely.html">Managing
+the article <a href="https://gargle.r-lib.org/articles/managing-tokens-securely.html">Managing
 tokens securely</a>.</p>
 <p>Note that fetching a token for a service account requires a
 reasonably accurate system clock. This is of particular importance for
@@ -502,25 +502,35 @@ out:</p>
 <p><code>credentials_external_account()</code> implements something
 called <em>workload identity federation</em> and is available to
 applications running on specific non-Google Cloud platforms. At the time
-of writing, gargle only supports AWS, but this could be expanded to
-other providers, such as Azure, if there is a documented need.</p>
+of writing, gargle supports AWS and configurations where the subject
+token is obtained from a URL or a file. The URL case includes GitHub
+Actions, via the <a href="https://github.com/google-github-actions/auth"><code>google-github-actions/auth</code></a>
+action. In GitHub Actions, you typically don’t provide
+<code>path</code>, so <code>token_fetch()</code>’s call to
+<code>credentials_external_account()</code> returns <code>NULL</code>
+and the configuration is found by <code>credentials_app_default()</code>
+instead, via <code>GOOGLE_APPLICATION_CREDENTIALS</code>.</p>
 <p>Similar to <code>credentials_service_account()</code>, the
 <code>path</code> is treated as a JSON representation of the account’s
 configuration and it’s probably a file path. However, in contrast to
-<code>credentials_service_account()</code>, this JSON only contains
-non-sensitive metadata, which is, indeed, the main point of this flow.
-The secrets needed to complete auth are obtained “on-the-fly” from,
-e.g., the running EC2 instance.</p>
+<code>credentials_service_account()</code>, this JSON is not a
+long-lived secret, which is, indeed, the main point of this flow. On
+AWS, the file contains only non-sensitive metadata and the secrets
+needed to complete auth are obtained “on-the-fly” from the running EC2
+instance. On GitHub Actions, the file is written fresh for each job and
+contains only a short-lived credential.</p>
 <p><code>credentials_external_account()</code> will fail for many
 reasons: there is no named <code>path</code> argument, the JSON at
-<code>path</code> can’t be parsed as configuration for an external AWS
-account, we don’t appear to running on AWS, suggested packages for AWS
+<code>path</code> can’t be parsed as configuration for an external
+account, the configuration uses an unsupported credential source or
+lacks a service account impersonation URL, the configuration is for AWS
+but we don’t appear to be running on AWS, suggested packages for AWS
 functionality are not installed, or the workload identity pool is
 misconfigured. If any of that happens, we fail and
 <code>token_fetch()</code>’s execution moves on to the next function in
 the registry.</p>
-<p>Here is some Google documentation about workload identity federation
-and the specifics for AWS:</p>
+<p>Here is some Google documentation about workload identity
+federation:</p>
 <ul>
 <li>Blog post: <a href="https://cloud.google.com/blog/products/identity-security/enable-keyless-access-to-gcp-with-workload-identity-federation/">Keyless
 API authentication — Better cloud security through workload identity
@@ -586,8 +596,9 @@ called with only the <code>scopes</code> argument specified.</li>
 <p>Again, remember that the JSON key file for a conventional service
 account must be managed securely and should NOT live in a directory that
 syncs to the cloud. The JSON configuration for an external account is
-not actually sensitive and this is one of the benefits of this flow, but
-it’s only available in a very narrow set of circumstances.</p>
+not a long-lived secret, which is one of the benefits of this flow, but
+it’s only available in certain circumstances, such as on AWS or GitHub
+Actions.</p>
 </div>
 <div id="credentials_gce" class="section level2">
 <h2><code>credentials_gce()</code></h2>
@@ -726,14 +737,14 @@ when working with Google APIs. This is one of the main motivations for
 <code>httr::Token2.0</code>. The <code>gargle::Gargle2.0</code> class
 also defaults to a user-level token cache, as opposed to project-level.
 An overview of the current OAuth cache is available via
-<code>gargle_oauth_cache()</code> and the output looks something like
+<code>gargle_oauth_sitrep()</code> and the output looks something like
 this:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">gargle_oauth_sitrep</span>()</span>
-<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&gt; 14 tokens found in this gargle OAuth cache:</span></span>
-<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&gt; ~/Library/Caches/gargle</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="co">#&#39; 14 tokens found in this gargle OAuth cache:</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="co">#&#39; &#39;~/Library/Caches/gargle&#39;</span></span>
 <span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co">#&#39;</span></span>
-<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&#39; email                         app         scopes                         hash...</span></span>
-<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&#39; ----------------------------- ----------- ------------------------------ ----------</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&#39; email                         client      scopes                         hash...</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&#39; _____________________________ ___________ ______________________________ __________</span></span>
 <span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       thingy      ...bigquery, ...cloud-platform 128f9cc...</span></span>
 <span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&#39; buzzy@example.org             gargle-demo                                15acf95...</span></span>
 <span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&#39; stella@example.org            gargle-demo ...drive                       4281945...</span></span>
@@ -748,6 +759,8 @@ this:</p>
 <span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive.readonly              ecd11fa...</span></span>
 <span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...bigquery, ...cloud-platform ece63f4...</span></span>
 <span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets                f178dd8...</span></span></code></pre></div>
+<p>The default cache location varies by operating system; see
+<code>gargle_oauth_cache()</code> for more details.</p>
 </div>
 <div id="manipulate-the-credential-function-registry" class="section level2">
 <h2>Manipulate the credential function registry</h2>

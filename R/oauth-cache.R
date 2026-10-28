@@ -99,7 +99,7 @@ cache_load <- function(path) {
   names(files) <- path_file(files)
   tokens <- map(files, readRDS)
 
-  hashes <- map_chr(tokens, function(t) t$hash())
+  hashes <- map_chr(tokens, \(t) t$hash())
 
   mismatch <- names(hashes) != hashes
   if (any(mismatch)) {
@@ -288,7 +288,7 @@ token_match <- function(candidate, existing, package = "gargle") {
       emails <- extract_email(existing)
       emails_fmt <- lapply(
         emails,
-        function(x) cli::format_inline("{.email {x}}")
+        \(x) cli::format_inline("{.email {x}}")
       )
       msg <- c(
         "i" = "Suitable tokens found in the cache, associated with these \\
@@ -356,6 +356,8 @@ match2 <- function(needle, haystack) {
 
 #' OAuth token situation report
 #'
+#' @description
+
 #' Get a human-oriented overview of the existing gargle OAuth tokens:
 #'   * Filepath of the current cache
 #'   * Number of tokens found there
@@ -364,12 +366,22 @@ match2 <- function(needle, haystack) {
 #'     - OAuth client (actually, just its nickname)
 #'     - Scopes
 #'     - Hash (actually, just the first 7 characters)
-#' Mostly useful for the development of gargle and client packages.
+#'
+#' This is the most direct way to find out where gargle's OAuth cache is (see
+#' [gargle_oauth_cache()] for more about the cache location). The `filepath`
+#' column of the returned data frame makes it easy to delete specific tokens,
+#' e.g.:
+#'
+#' ```
+#' dat <- gargle_oauth_sitrep()
+#' # delete all cached tokens for one Google identity
+#' unlink(dat$filepath[dat$email == "jane@example.com"])
+#' ```
 #'
 #' @inheritParams gargle2.0_token
 #'
 #' @return A data frame with one row per cached token, invisibly. Note this data
-#'   frame may contain more columns than it seems, e.g. the `filepath` column
+#'   frame contains more columns than it seems, e.g. the `filepath` column
 #'   isn't printed by default.
 #' @export
 #'
@@ -406,11 +418,11 @@ gargle_oauth_dat <- function(cache = NULL) {
   nms <- names(tokens)
   hash <- mask_email(nms)
   email <- extract_email(nms)
-  client <- map_chr(tokens, function(t) t$client$name %||% t$app$appname)
-  scopes <- map(tokens, function(t) t$params$scope)
+  client <- map_chr(tokens, \(t) t$client$name %||% t$app$appname)
+  scopes <- map(tokens, \(t) t$params$scope)
   email_scope <- "https://www.googleapis.com/auth/userinfo.email"
-  scopes <- map(scopes, function(s) s[s != email_scope])
-  scopes <- map_chr(scopes, function(s) commapse(base_scope(s)))
+  scopes <- map(scopes, \(s) s[s != email_scope])
+  scopes <- map_chr(scopes, \(s) commapse(base_scope(s)))
 
   structure(
     data.frame(

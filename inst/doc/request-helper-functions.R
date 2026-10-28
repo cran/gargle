@@ -16,10 +16,12 @@ list.files(ddi_dir)
 
 ## -----------------------------------------------------------------------------
 # # googledrive::
-# request_generate <- function(endpoint = character(),
-#                              params = list(),
-#                              key = NULL,
-#                              token = drive_token()) {
+# request_generate <- function(
+#   endpoint = character(),
+#   params = list(),
+#   key = NULL,
+#   token = drive_token()
+# ) {
 #   ept <- .endpoints[[endpoint]]
 #   if (is.null(ept)) {
 #     stop_glue("\nEndpoint not recognized:\n  * {endpoint}")
@@ -47,10 +49,10 @@ list.files(ddi_dir)
 #   stopifnot(is.character(x$method))
 #   method <- switch(
 #     x$method,
-#     GET    = httr::GET,
-#     POST   = httr::POST,
-#     PATCH  = httr::PATCH,
-#     PUT    = httr::PUT,
+#     GET = httr::GET,
+#     POST = httr::POST,
+#     PATCH = httr::PATCH,
+#     PUT = httr::PUT,
 #     DELETE = httr::DELETE,
 #     abort(glue("Not a recognized HTTP method: {bt(x$method)}"))
 #   )

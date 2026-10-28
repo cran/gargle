@@ -84,7 +84,7 @@
 #' * `https://www.channable.com/tech/opnieuw-a-simple-and-intuitive-retrying-library-for-python`
 #' * <https://github.com/channable/opnieuw>
 #' * <https://docs.cloud.google.com/storage/docs/retry-strategy>
-#' * <https://www.rfc-editor.org/rfc/rfc7231#section-7.1.3>
+#' * <https://www.rfc-editor.org/info/rfc7231/#section-7.1.3>
 #' * <https://developers.google.com/sheets/api/limits>
 #' * <https://googleapis.dev/python/google-api-core/latest/retry.html>
 #'
@@ -116,6 +116,10 @@ request_retry <- function(
   )
 
   while (we_should_retry(tries_made, max_tries_total, resp)) {
+    if (sheets_per_user_quota_exhaustion(resp)) {
+      per_user_failures <- per_user_failures + 1
+    }
+
     wait_info <- backoff(tries_made, resp, base = b, per_user_failures)
     wait_time <- wait_info$wait_time
 
@@ -131,13 +135,10 @@ request_retry <- function(
       Sys.sleep(1 / n)
       cli::cli_progress_update()
     }
+    cli::cli_progress_done()
 
     resp <- request_make(...)
-
     tries_made <- tries_made + 1
-    if (sheets_per_user_quota_exhaustion(resp)) {
-      per_user_failures <- per_user_failures + 1
-    }
   }
 
   if (tries_made > 1) {
@@ -186,7 +187,7 @@ backoff <- function(
     )
   }
 
-  if (sheets_per_user_quota_exhaustion(resp) && per_user_failures < 1) {
+  if (sheets_per_user_quota_exhaustion(resp) && per_user_failures <= 1) {
     # 60s plus 1s and some jitter, for some wiggle
     wait_time <- 60 + 1 + stats::runif(1)
     wait_rationale <- "fixed 60 second wait for first per user quota exhaustion"
@@ -219,6 +220,10 @@ retry_after_header <- function(resp) {
 # targets the most common quota problem, which is the per user per minute quota
 # from the Sheets API
 sheets_per_user_quota_exhaustion <- function(resp) {
+  code <- httr::status_code(resp)
+  if (code < 400) {
+    return(FALSE)
+  }
   msg <- gargle_error_message(resp)
   # the structure of this error and the wording of this message have changed
   # over time
@@ -247,7 +252,7 @@ announce_retryable_failure <- function(resp, tries_made, wait_info) {
       # oops is defined in response_process.R
       oops$RPC[[match(status_code, oops$HTTP)]]
     },
-    error = function(e) NULL
+    error = \(e) NULL
   )
   status_extra <- glue(": {status_rpc}") %||% ""
   if (sheets_per_user_quota_exhaustion(resp)) {

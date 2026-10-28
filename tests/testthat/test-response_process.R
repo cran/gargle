@@ -47,7 +47,7 @@ test_that("HTML error is offered as a file", {
   resp <- readRDS(rds_file)
   err <- tryCatch(
     response_process(resp),
-    gargle_error_request_failed = function(e) e
+    gargle_error_request_failed = \(e) e
   )
   regex <- "[^'\" \\t\\n\\r]+gargle-unexpected-html-error-\\S+[.]html"
   m <- gregexpr(regex, err$body, perl = TRUE)
@@ -115,6 +115,21 @@ test_that("Request to bad URL (tokeninfo, HTML content)", {
   )
 })
 
+# https://github.com/tidyverse/googlesheets4/issues/319
+test_that("Curly braces in error message are taken literally (Drive)", {
+  rds_file <- test_path(
+    "fixtures",
+    "drive-files-get-nonexistent-file-id_404.rds"
+  )
+  resp <- readRDS(rds_file)
+  resp$content <- charToRaw(gsub(
+    "NOPE_NOT_A_GOOD_ID",
+    "{fileId}",
+    rawToChar(resp$content)
+  ))
+  expect_snapshot(response_process(resp), error = TRUE)
+})
+
 # error_class parameter ----
 test_that("error_class parameter adds custom classes", {
   rds_file <- test_path(
@@ -126,7 +141,7 @@ test_that("error_class parameter adds custom classes", {
   # Without error_class, we get default classes
   err <- tryCatch(
     response_process(resp),
-    gargle_error_request_failed = function(e) e
+    gargle_error_request_failed = \(e) e
   )
   klass <- class(err)
   expect_equal(
@@ -136,7 +151,7 @@ test_that("error_class parameter adds custom classes", {
 
   err_custom <- tryCatch(
     response_process(resp, error_class = c("custom_error1", "custom_error2")),
-    custom_error1 = function(e) e
+    custom_error1 = \(e) e
   )
   klass <- class(err_custom)
   expect_equal(
@@ -158,4 +173,32 @@ test_that("RPC codes can be looked up (or not)", {
     "resource .* already exists"
   )
   expect_null(rpc_description("MATCHES_NOTHING"))
+})
+
+test_that("redact_response() redacts the API key of a key request", {
+  resp <- readRDS(test_path("fixtures", "books-volumes-list-api-key_200.rds"))
+  out <- redact_response(resp)
+  expect_equal(
+    out$request$headers,
+    c(
+      Accept = resp$request$headers[["Accept"]],
+      `X-goog-api-key` = "<REDACTED>"
+    )
+  )
+  expect_null(out$request$auth_token)
+  expect_null(out$handle)
+})
+
+test_that("redact_response() redacts the token of a token request", {
+  resp <- readRDS(test_path("fixtures", "userinfo-service-account_200.rds"))
+  out <- redact_response(resp)
+  expect_equal(
+    out$request$headers,
+    c(
+      Accept = resp$request$headers[["Accept"]],
+      Authorization = "<REDACTED>"
+    )
+  )
+  expect_equal(out$request$auth_token, "<REDACTED>")
+  expect_null(out$handle)
 })

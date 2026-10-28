@@ -16,7 +16,7 @@ dedicate to waiting, summed across all tries. This is a technical upper
 bound and actual cumulative waiting will be less.}
 }
 \value{
-Object of class \code{response} from \link[httr:httr-package]{httr::httr}.
+Object of class \code{response} from \link[httr:httr]{httr}.
 }
 \description{
 Intended primarily for internal use in client packages that provide
@@ -111,7 +111,7 @@ gargle::request_retry(req)
 \item \verb{https://www.channable.com/tech/opnieuw-a-simple-and-intuitive-retrying-library-for-python}
 \item \url{https://github.com/channable/opnieuw}
 \item \url{https://docs.cloud.google.com/storage/docs/retry-strategy}
-\item \url{https://www.rfc-editor.org/rfc/rfc7231#section-7.1.3}
+\item \url{https://www.rfc-editor.org/info/rfc7231/#section-7.1.3}
 \item \url{https://developers.google.com/sheets/api/limits}
 \item \url{https://googleapis.dev/python/google-api-core/latest/retry.html}
 }

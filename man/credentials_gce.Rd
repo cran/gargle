@@ -76,9 +76,9 @@ credentials_gce()
 }
 }
 \seealso{
-A related auth flow that can be used on certain non-Google cloud
-providers is workload identity federation, which is implemented in
-\code{\link[=credentials_external_account]{credentials_external_account()}}.
+A related auth flow that can be used on certain non-Google
+platforms, such as AWS or GitHub Actions, is workload identity federation,
+which is implemented in \code{\link[=credentials_external_account]{credentials_external_account()}}.
 
 \url{https://docs.cloud.google.com/compute/docs/access/service-accounts}
 
@@ -93,12 +93,12 @@ How to attach a service account to a resource:
 
 \url{https://docs.cloud.google.com/compute/docs/metadata/overview}
 
-Other credential functions: 
-\code{\link{credentials_app_default}()},
-\code{\link{credentials_byo_oauth2}()},
-\code{\link{credentials_external_account}()},
-\code{\link{credentials_service_account}()},
-\code{\link{credentials_user_oauth2}()},
-\code{\link{token_fetch}()}
+Other credential functions:
+\code{\link[=credentials_app_default]{credentials_app_default()}},
+\code{\link[=credentials_byo_oauth2]{credentials_byo_oauth2()}},
+\code{\link[=credentials_external_account]{credentials_external_account()}},
+\code{\link[=credentials_service_account]{credentials_service_account()}},
+\code{\link[=credentials_user_oauth2]{credentials_user_oauth2()}},
+\code{\link[=token_fetch]{token_fetch()}}
 }
 \concept{credential functions}

@@ -154,6 +154,18 @@ gargle_error_message <- function(resp, call = caller_env()) {
     return(gargle_html_error_message(resp))
   }
 
+  # I don't expect non-JSON content here and yet I've seen some CI failures
+  # that sure suggest that has happened. Can't repro locally.
+  if (!grepl("^application/json", type)) {
+    return(c(
+      httr::http_status(resp)$message,
+      "x" = gargle_map_cli(
+        type,
+        "Expected content type {.field application/json}, not {.field <<x>>}."
+      )
+    ))
+  }
+
   content <- response_as_json(resp, call = call)
   error <- content[["error"]]
 
@@ -206,7 +218,7 @@ gargle_error_message <- function(resp, call = caller_env()) {
     # Remove the localized message from error details, regardless
     # Currently ignoring the locale info, because it seems hard to reliably
     # compare to something returned by Sys.getlocale()
-    types <- map_chr(error_details, function(x) x[["@type"]])
+    types <- map_chr(error_details, \(x) x[["@type"]])
     lm_index <- match("type.googleapis.com/google.rpc.LocalizedMessage", types)
     localized_message <- error_details[[lm_index]][["message"]]
     if (!is.na(lm_index)) {
@@ -243,12 +255,16 @@ gargle_error_message <- function(resp, call = caller_env()) {
       n_show = 10
     )
   )
-  message
+  escape_braces(message)
 }
 
 redact_response <- function(resp) {
-  resp$request$auth_token <- "<REDACTED>"
-  resp$request$headers["Authorization"] <- "<REDACTED>"
+  if (!is.null(resp$request$auth_token)) {
+    resp$request$auth_token <- "<REDACTED>"
+  }
+  header_names <- tolower(names(resp$request$headers))
+  is_secret <- header_names %in% c("authorization", "x-goog-api-key")
+  resp$request$headers[is_secret] <- "<REDACTED>"
   resp$handle <- NULL
   resp
 }
@@ -351,7 +367,7 @@ reveal_detail <- function(x) {
         # this needs to be an anonymous function (as opposed to naked `glue`)
         # in order to capture the value of `type`
         # good write-up in https://stackoverflow.com/a/75247635
-        function(x) glue(x)
+        \(x) glue(x)
       )
     )
   )
@@ -376,18 +392,4 @@ gargle_html_error_message <- function(resp) {
       "Or execute {.code <<x>>} to view it in your browser."
     )
   )
-}
-
-# Google APIs might return error messages containing curly braces, e.g.
-# "metadata.quota_unit: 1/min/{project}/{user}"
-# This can cause problems when eventually process by cli::cli_abort(), e.g.
-# Error:
-# ! ! Could not evaluate cli `{}` expression: `project`.
-# Caused by error in `eval(expr, envir = envir)`:
-# ! object 'project' not found
-# So we need to escape them by doubling them, so they are taken literally.
-# Seen by me and by a user:
-# https://github.com/tidyverse/googlesheets4/issues/319
-escape_braces <- function(msg) {
-  gsub("([{}])", "\\1\\1", msg)
 }

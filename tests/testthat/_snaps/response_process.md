@@ -11,13 +11,14 @@
       Error details:
       * reason: RATE_LIMIT_EXCEEDED
       * domain: googleapis.com
-      * metadata.quota_limit_value: 60
-      * metadata.service: sheets.googleapis.com
-      * metadata.consumer: projects/603366585132
+      * metadata.window_start_time: 1791241313
       * metadata.quota_unit: 1/min/{project}/{user}
-      * metadata.quota_location: global
-      * metadata.quota_metric: sheets.googleapis.com/read_requests
       * metadata.quota_limit: ReadRequestsPerMinutePerUser
+      * metadata.service: sheets.googleapis.com
+      * metadata.quota_location: global
+      * metadata.quota_limit_value: 60
+      * metadata.consumer: projects/603366585132
+      * metadata.quota_metric: sheets.googleapis.com/read_requests
       Links
       * Description: Request a higher quota limit.
         URL: https://cloud.google.com/docs/quotas/help/request_increase
@@ -30,11 +31,11 @@
       Error in `expect_recorded_error()`:
       ! Client error: (404) Not Found
       File not found: NOPE_NOT_A_GOOD_ID.
+      * message: File not found: NOPE_NOT_A_GOOD_ID.
       * domain: global
       * reason: notFound
-      * message: File not found: NOPE_NOT_A_GOOD_ID.
-      * locationType: parameter
       * location: fileId
+      * locationType: parameter
 
 # Too many requests (Drive, HTML content)
 
@@ -100,13 +101,16 @@
       * Google Sheets API has not been used in project 977449744253 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=977449744253 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
       
       Error details:
+      * reason: SERVICE_DISABLED
+      * domain: googleapis.com
+      * metadata.service: sheets.googleapis.com
+      * metadata.activationUrl: https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=977449744253
+      * metadata.consumer: projects/977449744253
+      * metadata.containerInfo: 977449744253
+      * metadata.serviceTitle: Google Sheets API
       Links
       * Description: Google developers console API activation
         URL: https://console.developers.google.com/apis/api/sheets.googleapis.com/overview?project=977449744253
-      * reason: SERVICE_DISABLED
-      * domain: googleapis.com
-      * metadata.consumer: projects/977449744253
-      * metadata.service: sheets.googleapis.com
 
 # Request with invalid argument (Sheets, bad range)
 
@@ -184,4 +188,18 @@
       x Expected content type 'application/json', not 'text/html'.
       i See 'VOLATILE_FILE_PATH' for the html error content.
       i Or execute `browseURL("VOLATILE_FILE_PATH")` to view it in your browser.
+
+# Curly braces in error message are taken literally (Drive)
+
+    Code
+      response_process(resp)
+    Condition
+      Error:
+      ! Client error: (404) Not Found
+      File not found: {fileId}.
+      * message: File not found: {fileId}.
+      * domain: global
+      * reason: notFound
+      * location: fileId
+      * locationType: parameter
 

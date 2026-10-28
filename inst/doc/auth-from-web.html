@@ -341,7 +341,8 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<p>If you are working with R in a web-based context, such as <a href="https://posit.co/download/rstudio-server/">RStudio Server</a>, <a href="https://posit.cloud/">Posit Cloud</a>, <a href="https://posit.co/products/enterprise/workbench/">Posit
+<p>If you are working with R in a web-based context, such as <a href="https://docs.posit.co/ide/user/#rstudio-server-oss-downloads">RStudio
+Server</a>, <a href="https://posit.cloud/">Posit Cloud</a>, <a href="https://posit.co/products/enterprise/workbench">Posit
 Workbench</a>, or <a href="https://colab.research.google.com/">Google
 Colaboratory</a>, your experience of browser-based auth flows will be
 different from those using R on their local machine. You need to use
@@ -541,6 +542,13 @@ and an “installed” client otherwise. If you need to explicitly request a
 “web” client in some other setting, you can use the global option
 <code>&quot;gargle_oauth_client_type&quot;</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">gargle_oauth_client_type =</span> <span class="st">&quot;web&quot;</span>)</span></code></pre></div>
+<p>A cached token is only (re-)discovered if gargle searches the cache
+with the same OAuth client that was used to obtain the token. So, if a
+token is obtained in one place and used in another, you may need to set
+this option. For example, deployed code on Posit Connect that uses a
+cached token obtained on Posit Workbench needs
+<code>gargle_oauth_client_type = &quot;web&quot;</code>. Read more in
+<code>vignette(&quot;non-interactive-auth&quot;)</code>.</p>
 <p>Users who configure their own OAuth client will need to be
 intentional when choosing the client type, depending on where the code
 is running.</p>
@@ -637,7 +645,7 @@ and kill the process, like so, filling in the PID you found:</p>
 <div id="further-reading" class="section level2">
 <h2>Further reading</h2>
 <p>If you’re working on a data product that will be deployed (for
-example on <a href="https://www.shinyapps.io">shinyapps.io</a> or <a href="https://posit.co/products/enterprise/connect/">Posit Connect</a>),
+example on <a href="https://www.shinyapps.io">shinyapps.io</a> or <a href="https://posit.co/products/enterprise/connect">Posit Connect</a>),
 you will also need to consider how the deployed content will
 authenticate non-interactively, which is covered in
 <code>vignette(&quot;non-interactive-auth&quot;)</code>.</p>

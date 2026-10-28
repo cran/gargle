@@ -435,7 +435,7 @@ HTTP request.</p>
 <ul>
 <li>Typically consumes the output of <code>request_build()</code>,
 although that is not required. However, if you have enough info to form
-a <code>request_make()</code> request, you would probably just make the
+a <code>request_make()</code> call, you would probably just make the
 <code>httr::VERB()</code> call yourself.</li>
 <li>Consults <code>x$method</code> to determine which
 <code>httr::VERB()</code> to call, then calls it with the rest of
@@ -516,30 +516,32 @@ helper, <code>googledrive::request_generate()</code>, that is used to
 form every request in the package. It is exported as part of a low-level
 API for expert use, but most users will never know it exists.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># googledrive::</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>request_generate <span class="ot">&lt;-</span> <span class="cf">function</span>(<span class="at">endpoint =</span> <span class="fu">character</span>(),</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>                             <span class="at">params =</span> <span class="fu">list</span>(),</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>                             <span class="at">key =</span> <span class="cn">NULL</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>                             <span class="at">token =</span> <span class="fu">drive_token</span>()) {</span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  ept <span class="ot">&lt;-</span> .endpoints[[endpoint]]</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(ept)) {</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>    <span class="fu">stop_glue</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Endpoint not recognized:</span><span class="sc">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  }</span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="do">## modifications specific to googledrive package</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  params<span class="sc">$</span>key <span class="ot">&lt;-</span> key <span class="sc">%||%</span> params<span class="sc">$</span>key <span class="sc">%||%</span> <span class="fu">drive_api_key</span>()</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(ept<span class="sc">$</span>parameters<span class="sc">$</span>supportsTeamDrives)) {</span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>    params<span class="sc">$</span>supportsTeamDrives <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  }</span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  req <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">request_develop</span>(<span class="at">endpoint =</span> ept, <span class="at">params =</span> params)</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_build</span>(</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>    <span class="at">path =</span> req<span class="sc">$</span>path,</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>    <span class="at">method =</span> req<span class="sc">$</span>method,</span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>    <span class="at">params =</span> req<span class="sc">$</span>params,</span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    <span class="at">body =</span> req<span class="sc">$</span>body,</span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>    <span class="at">token =</span> token</span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>  )</span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>}</span></code></pre></div>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>request_generate <span class="ot">&lt;-</span> <span class="cf">function</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">endpoint =</span> <span class="fu">character</span>(),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">params =</span> <span class="fu">list</span>(),</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">key =</span> <span class="cn">NULL</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">token =</span> <span class="fu">drive_token</span>()</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>) {</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  ept <span class="ot">&lt;-</span> .endpoints[[endpoint]]</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(ept)) {</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>    <span class="fu">stop_glue</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Endpoint not recognized:</span><span class="sc">\n</span><span class="st">  * {endpoint}&quot;</span>)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  }</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>  <span class="do">## modifications specific to googledrive package</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>  params<span class="sc">$</span>key <span class="ot">&lt;-</span> key <span class="sc">%||%</span> params<span class="sc">$</span>key <span class="sc">%||%</span> <span class="fu">drive_api_key</span>()</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(ept<span class="sc">$</span>parameters<span class="sc">$</span>supportsTeamDrives)) {</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>    params<span class="sc">$</span>supportsTeamDrives <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>  }</span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>  req <span class="ot">&lt;-</span> gargle<span class="sc">::</span><span class="fu">request_develop</span>(<span class="at">endpoint =</span> ept, <span class="at">params =</span> params)</span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>  gargle<span class="sc">::</span><span class="fu">request_build</span>(</span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a>    <span class="at">path =</span> req<span class="sc">$</span>path,</span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a>    <span class="at">method =</span> req<span class="sc">$</span>method,</span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a>    <span class="at">params =</span> req<span class="sc">$</span>params,</span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a>    <span class="at">body =</span> req<span class="sc">$</span>body,</span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a>    <span class="at">token =</span> token</span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a>  )</span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a>}</span></code></pre></div>
 <p>The <code>endpoint</code> argument specifies an endpoint by its name,
 a.k.a. its <code>id</code>.</p>
 <p><code>params</code> is where the processed user input goes.</p>
@@ -571,10 +573,10 @@ it.</p>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.character</span>(x<span class="sc">$</span>method))</span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  method <span class="ot">&lt;-</span> <span class="cf">switch</span>(</span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    x<span class="sc">$</span>method,</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">GET    =</span> httr<span class="sc">::</span>GET,</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="at">POST   =</span> httr<span class="sc">::</span>POST,</span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    <span class="at">PATCH  =</span> httr<span class="sc">::</span>PATCH,</span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="at">PUT    =</span> httr<span class="sc">::</span>PUT,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">GET =</span> httr<span class="sc">::</span>GET,</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="at">POST =</span> httr<span class="sc">::</span>POST,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    <span class="at">PATCH =</span> httr<span class="sc">::</span>PATCH,</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>    <span class="at">PUT =</span> httr<span class="sc">::</span>PUT,</span>
 <span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    <span class="at">DELETE =</span> httr<span class="sc">::</span>DELETE,</span>
 <span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="fu">abort</span>(<span class="fu">glue</span>(<span class="st">&quot;Not a recognized HTTP method: {bt(x$method)}&quot;</span>))</span>
 <span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  )</span>

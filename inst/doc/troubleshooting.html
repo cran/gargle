@@ -408,11 +408,11 @@ what’s going on.</p>
 someone who has accepted the default OAuth cache location and has played
 with several APIs via gargle-using packages.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">gargle_oauth_sitrep</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&#39; &gt; 14 tokens found in this gargle OAuth cache:</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&#39; 14 tokens found in this gargle OAuth cache:</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&#39; &#39;~/Library/Caches/gargle&#39;</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&#39;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&#39; email                         app         scope                          hash...</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&#39; ----------------------------- ----------- ------------------------------ ----------</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&#39; email                         client      scopes                         hash...</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&#39; _____________________________ ___________ ______________________________ __________</span></span>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       thingy      ...bigquery, ...cloud-platform 128f9cc...</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&#39; buzzy@example.org             gargle-demo                                15acf95...</span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&#39; stella@example.org            gargle-demo ...drive                       4281945...</span></span>
@@ -427,9 +427,11 @@ with several APIs via gargle-using packages.</p>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...drive.readonly              ecd11fa...</span></span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&#39; abcdefghijklm@gmail.com       tidyverse   ...bigquery, ...cloud-platform ece63f4...</span></span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&#39; nopqr@ABCDEFG.com             tidyverse   ...spreadsheets                f178dd8...</span></span></code></pre></div>
+<p>The default cache location varies by operating system; see
+<code>gargle_oauth_cache()</code> for more details.</p>
 <p>It is relatively harmless to delete the folder serving as the OAuth
 cache. Or, if you have reason to believe one specific cached token is
-causing you pain, you could delete a specific token (an
+causing you pain, you could delete a specific token (which is just an
 <code>.rds</code> file) from the cache. OAuth user tokens are meant to
 be perishable and replaceable.</p>
 <p>If you choose to delete your cache (or a specific token), here is the

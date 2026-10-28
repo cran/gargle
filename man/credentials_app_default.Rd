@@ -4,7 +4,11 @@
 \alias{credentials_app_default}
 \title{Load Application Default Credentials}
 \usage{
-credentials_app_default(scopes = NULL, ..., subject = NULL)
+credentials_app_default(
+  scopes = "https://www.googleapis.com/auth/cloud-platform",
+  ...,
+  subject = NULL
+)
 }
 \arguments{
 \item{scopes}{A character vector of scopes to request. Pick from those listed
@@ -67,12 +71,12 @@ credentials_app_default()
 \item \url{https://docs.cloud.google.com/sdk/docs}
 }
 
-Other credential functions: 
-\code{\link{credentials_byo_oauth2}()},
-\code{\link{credentials_external_account}()},
-\code{\link{credentials_gce}()},
-\code{\link{credentials_service_account}()},
-\code{\link{credentials_user_oauth2}()},
-\code{\link{token_fetch}()}
+Other credential functions:
+\code{\link[=credentials_byo_oauth2]{credentials_byo_oauth2()}},
+\code{\link[=credentials_external_account]{credentials_external_account()}},
+\code{\link[=credentials_gce]{credentials_gce()}},
+\code{\link[=credentials_service_account]{credentials_service_account()}},
+\code{\link[=credentials_user_oauth2]{credentials_user_oauth2()}},
+\code{\link[=token_fetch]{token_fetch()}}
 }
 \concept{credential functions}
